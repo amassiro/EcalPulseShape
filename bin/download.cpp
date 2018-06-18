@@ -26,9 +26,22 @@ int main(int argc, char** argv) {
  std::cout << "Download pulse shapes " << std::endl;
 
  
- cond::CondDBDumper<EcalPulseShapes> d("EcalPulseShapes");
- d.run(argc, argv);
+ cond::CondDBDumper<EcalPulseShapes> PulseShapeGeneration("EcalPulseShapes");
+ PulseShapeGeneration.run(argc, argv);
  
  
-  
+ cond::CondDBDumper<EcalPulseShapes> PulseShapeFit("EcalPulseShapes");
+ PulseShapeFit.run(argc, argv);
+ 
+ //---- generate according to PulseShapeGeneration and fit using PulseShapeFit
+ 
+ //---- generate
+ 
+ 
+ //---- fit 
+ 
+ 
+ 
+ 
+ 
 }
