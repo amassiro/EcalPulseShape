@@ -7,3 +7,6 @@ Steps
 3) plot the bias
 
 
+
+    download
+    

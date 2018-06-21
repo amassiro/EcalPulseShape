@@ -48,11 +48,11 @@ namespace cond {
       
   public:
     
-//     CondDBDumper(std::string class_name) : Utilities("conddb_dumper"), _class_name(class_name)
-    CondDBDumper(std::string class_name)  : Utilities("")
-//       CondDBDumper(std::string class_name)  
+//     CondDBDumper(std::string tag) : Utilities("conddb_dumper"), _tag(tag)
+    CondDBDumper(std::string tag)  : Utilities("")
+//       CondDBDumper(std::string tag)  
         {
-     _class_name = class_name;
+     _tag = tag;
      
 //       addAuthenticationOptions();
 //       addOption<bool>("join", "j", "produce one single output file, where IOVs are separated by double line break and a comment line starting with `#'");
@@ -123,7 +123,10 @@ namespace cond {
       connPool.configure();
       cond::persistency::Session session = connPool.createSession(connect);
 
-      std::string tag = "EcalPulseShapes_hlt";
+//       std::string tag = "EcalPulseShapes_hlt";
+      std::string tag = _tag;
+      
+      
       
       session.transaction().start( true );
       cond::persistency::IOVProxy iov = session.readIov(tag, true);
@@ -204,7 +207,7 @@ namespace cond {
     
     
   private:
-    std::string _class_name;
+    std::string _tag;
     std::vector<DetId> _ids;
   };
   
