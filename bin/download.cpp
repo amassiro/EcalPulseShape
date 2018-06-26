@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
  cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit("EcalPulseShapes_hlt", "EcalPulseShapes_hlt");
  PulseShapeGenerationAndFit.run(argc, argv);
  
- 
+ std::cout << " done " << std::endl;
  
  //---- generate according to PulseShapeGeneration and fit using PulseShapeFit
  
