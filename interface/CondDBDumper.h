@@ -50,6 +50,12 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
 
 
+//---- ROOT
+#include "TFile.h"
+#include "TTree.h"
+
+
+
 namespace cond {
   
   template<class C>
@@ -90,8 +96,18 @@ namespace cond {
     
         
     // main loop
-    int execute()
-    {
+    int execute() {
+      
+      TFile* outputFile = new TFile ("out.root", "RECREATE");
+      TTree* outputTree = new TTree ("outputTree", "outputTree");
+      float bias;
+      int ieta;
+      int iphi;
+      outputTree->Branch("bias", &bias);
+      outputTree->Branch("ieta", &ieta);
+      outputTree->Branch("iphi", &iphi);
+      
+      
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
       std::string db = "";
 //       if (hasOptionValue("db")) {
@@ -130,6 +146,9 @@ namespace cond {
       }
       
       
+      
+      //---- now get the pulse shape tags
+      
       cond::persistency::IOVProxy iovs_production = session.readIov(_tag_production, true);
       std::string obj_type = iovs_production.payloadObjectType();
       
@@ -146,108 +165,128 @@ namespace cond {
       //---- loop over all the intervals of validity
       for (auto iov : iovs_production) {
         cnt_iov++;
-        std::shared_ptr<C> pa = session.fetchPayload<C>(iov.payloadId);
-        //---- loop over the crystals
-        for (size_t i = 0; i < _ids.size(); ++i) {
-          DetId id(_ids[i]);
-          EcalPulseShapes::const_iterator it_pulseShape = pa->find(id);
-          
-          if (it_pulseShape == pa->end()) {
-            std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
-          }
-          
-          coord(_ids[i]);
-          
-//           std::vector < float > production_samples;
-//           production_samples.push_back(0, 0, 0);     
-
-          SampleVector amplitudes;
-          amplitudes[0] = 0.;
-          amplitudes[1] = 0.;
-          amplitudes[2] = 0.;
-
-          for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-            //                       std::cout << it_pulseShape->val(iSample) << " : " ;
-            //---- only the first 7 samples, the rest is extrapolation
-            if (iSample<7) {
-              //---- 100 = 100 ADC counts [random number]
-              //               production_samples.push_back( 100* it_pulseShape->val(iSample) );
-              amplitudes[iSample+3] = 100* it_pulseShape->val(iSample);
+        std::cout << " here: cnt_iov = " << cnt_iov << std::endl;
+        if (cnt_iov == 1) {
+          std::shared_ptr<C> pa = session.fetchPayload<C>(iov.payloadId);
+          //---- loop over the crystals
+          for (size_t i = 0; i < _ids.size(); ++i) {
+            
+            std::cout << " [ " << i << " :: " << _ids.size() << " ]" << std::endl;
+            
+            DetId id(_ids[i]);
+            EcalPulseShapes::const_iterator it_pulseShape = pa->find(id);
+            
+            if (it_pulseShape == pa->end()) {
+              std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
             }
-          }
-          
-                    
-          SampleMatrix noisecov;
-          BXVector activeBX;
-          FullSampleVector fullpulse(FullSampleVector::Zero());
-          FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
-
-          const EcalPulseCovariances::Item * aPulseCov = nullptr;
-          unsigned int hashedIndex = EBDetId(_ids[i]).hashedIndex();
-          aPulseCov  = &(pulsecovariances)->barrel(hashedIndex);
-          
-          
-          SampleGainVector gainsPedestal;
-          SampleGainVector badSamples = SampleGainVector::Zero();
-          
-
-          
-          for (int iSample=0; i<EcalPulseShape::TEMPLATESAMPLES; ++iSample) {
-            fullpulse(iSample+7) = it_pulseShape->val(iSample);
-          }
-          
-          for(int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES;iSample++) {
-            for(int jSample=0; jSample<EcalPulseShape::TEMPLATESAMPLES;jSample++) {
-              fullpulsecov(iSample+7,jSample+7) = aPulseCov->covval[iSample][jSample];
+            
+            coord(_ids[i]);
+            
+            //           std::vector < float > production_samples;
+            //           production_samples.push_back(0, 0, 0);     
+            
+            SampleVector amplitudes;
+            amplitudes[0] = 0.;
+            amplitudes[1] = 0.;
+            amplitudes[2] = 0.;
+            
+            for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+              //                       std::cout << it_pulseShape->val(iSample) << " : " ;
+              //---- only the first 7 samples, the rest is extrapolation
+              if (iSample<7) {
+                //---- 100 = 100 ADC counts [random number]
+                //               production_samples.push_back( 100* it_pulseShape->val(iSample) );
+                amplitudes[iSample+3] = 100* it_pulseShape->val(iSample);
+              }
             }
-          }
+            
+            
+            SampleMatrix noisecov;
+            BXVector activeBX;
+            FullSampleVector fullpulse(FullSampleVector::Zero());
+            FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
+            
+            const EcalPulseCovariances::Item * aPulseCov = nullptr;
+            unsigned int hashedIndex = EBDetId(_ids[i]).hashedIndex();
+            aPulseCov  = &(pulsecovariances)->barrel(hashedIndex);
+            
+            
+            SampleGainVector gainsPedestal;
+            SampleGainVector badSamples = SampleGainVector::Zero();
+            
+            
+            //---- pulse shape to be used as reference ...      
+            for (int iSample=0; i<EcalPulseShape::TEMPLATESAMPLES; ++iSample) {
+              fullpulse(iSample+7) = it_pulseShape->val(iSample);
+            }
+            //---- ... and the corresponding covariance matrix          
+            for(int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES;iSample++) {
+              for(int jSample=0; jSample<EcalPulseShape::TEMPLATESAMPLES;jSample++) {
+                fullpulsecov(iSample+7,jSample+7) = aPulseCov->covval[iSample][jSample];
+              }
+            }
+            
+            //---- active bunch crossings
+            activeBX.resize(10);
+            activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
+            
+            //           noisecov = aped->rms_x12*aped->rms_x12*noisecors[0];
+            //---- 1.2 ADC: https://github.com/kpedro88/cmssw/blob/master/CondFormats/EcalObjects/interface/EcalPedestals.h ---> it's a float
+            SampleMatrixGainArray noisecors;
+            noisecov = 1.2 * 1.2 * noisecors[0];
+            
+            for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+              gainsPedestal[iSample] = -1;  //-1 for static pedestal
+            }
+            
+            std::cout << " now fit " << std::endl;
+            
+            bool status = _pulsefunc.DoFit(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
+            float chisq = _pulsefunc.ChiSq();
+            
+            //           if (!status) {
+            //             edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
+            //           }
+            //           
+            unsigned int ipulseintime = 0;
+            for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+              if (_pulsefunc.BXs().coeff(ipulse)==0) {
+                ipulseintime = ipulse;
+                break;
+              }
+            }
+            
+            _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / 100.;
+            
+            bias = _bias [i];
+            ieta = _c.ix_;
+            iphi = _c.iy_;
+            
+            outputTree->Fill();
+            
+            std::cout << " i = " << i << std::endl;
+            
+            //           
+            //           amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
+            //           amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
+            //           
+            //           
             
             
             
-//           noisecov = aped->rms_x12*aped->rms_x12*noisecors[0];
-          //---- 1.2 ADC: https://github.com/kpedro88/cmssw/blob/master/CondFormats/EcalObjects/interface/EcalPedestals.h ---> it's a float
-          SampleMatrixGainArray noisecors;
-          noisecov = 1.2 * 1.2 * noisecors[0];
-          
-          for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-            gainsPedestal[iSample] = -1;  //-1 for static pedestal
+            
+            
+            
+            //           std::cout <<  _c.ix_ << " " <<  _c.iy_ << " " <<  _c.iz_ << " ::: " ;
+            //           //---- loop over the N-samples of the pulse shape
+            //           for (int is = 0; is < EcalPulseShape::TEMPLATESAMPLES; ++is) {
+            //             std::cout << it_pulseShape->val(is) << " : " ;
+            //           }
+            //           std::cout << std::endl;
           }
           
-          bool status = _pulsefunc.DoFit(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
-          float chisq = _pulsefunc.ChiSq();
-          
-//           if (!status) {
-//             edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
-//           }
-//           
-          unsigned int ipulseintime = 0;
-          for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-            if (_pulsefunc.BXs().coeff(ipulse)==0) {
-              ipulseintime = ipulse;
-              break;
-            }
-          }
-          
-          _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / 100.;
-          
-//           
-//           amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
-//           amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
-//           
-//           
-          
-          
-          
-          
-          
-          
-//           std::cout <<  _c.ix_ << " " <<  _c.iy_ << " " <<  _c.iz_ << " ::: " ;
-//           //---- loop over the N-samples of the pulse shape
-//           for (int is = 0; is < EcalPulseShape::TEMPLATESAMPLES; ++is) {
-          //             std::cout << it_pulseShape->val(is) << " : " ;
-//           }
-//           std::cout << std::endl;
         }
+      
       }
       
       std::cout << " cnt_iov = " << cnt_iov << std::endl;
