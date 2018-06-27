@@ -175,8 +175,31 @@ namespace cond {
       }
       
       
+      //           noisecov = aped->rms_x12*aped->rms_x12*noisecors[0];
+      //---- 1.2 ADC: https://github.com/kpedro88/cmssw/blob/master/CondFormats/EcalObjects/interface/EcalPedestals.h ---> it's a float
+      SampleMatrixGainArray noisecors;
+      //---- from https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc
+      //             
+      //         noisecor ---->    https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.h#L63
+      //         
+      //         from here:    https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc#L151
+      //         due to pointers!!!!! ---> https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc#L141
       
-      //---- now get the pulse shape tags
+      //             https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo.h#L28
+      //             
+      //             const SampleMatrixGainArray &noisecors = noisecor(barrel);
+      //             const SampleMatrixGainArray &noisecors = noisecor(true);
+      //             noisecov = 1.2 * 1.2 * noisecors[0];
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      //---- now get the pulse shape and amplitude tags
       
       cond::persistency::IOVProxy iovs_production = session.readIov(_tag_production, true);
       std::string obj_type = iovs_production.payloadObjectType();
@@ -191,25 +214,96 @@ namespace cond {
       std::cout << (*first_iov).since << " " << (*last_iov).since << std::endl;
       
       int cnt_iov = 0;
-      //---- loop over all the intervals of validity
-      for (auto iov : iovs_production) {
-        cnt_iov++;
-        std::cout << " here: cnt_iov = " << cnt_iov << std::endl;
-        if (cnt_iov == 1) {
-          std::shared_ptr<C> pa = session.fetchPayload<C>(iov.payloadId);
-          //---- loop over the crystals
-          for (size_t i = 0; i < _ids.size(); ++i) {
-            
-//             std::cout << " [ " << i << " :: " << _ids.size() << " ]" << std::endl;
-            
-            DetId id(_ids[i]);
+
+      //---- loop over the crystals
+      for (size_t i = 0; i < 100; ++i) {
+//         for (size_t i = 0; i < _ids.size(); ++i) {
+        
+        DetId id(_ids[i]);
+        coord(_ids[i]);
+        
+        
+        
+        //---- the input pulse to be fitted
+        SampleVector amplitudes;
+        
+        //---- bunch crossings that are active
+        BXVector activeBX;
+        //---- active bunch crossings
+        activeBX.resize(10);
+        activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
+        
+        
+        //---- the pulse shape and its parameters used for fitting
+        FullSampleVector fullpulse(FullSampleVector::Zero());
+        FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
+        
+        
+        const EcalPulseCovariances::Item * aPulseCov = nullptr;
+        unsigned int hashedIndex = EBDetId(_ids[i]).hashedIndex();
+        aPulseCov  = &(pulsecovariances)->barrel(hashedIndex);
+        
+        SampleGainVector gainsPedestal;
+        SampleGainVector badSamples = SampleGainVector::Zero();
+        
+        //             https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc#L374
+        //             
+        
+        for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+          gainsPedestal[iSample] = -1;  //-1 for static pedestal
+        }
+        
+        
+        //---- ... and the corresponding covariance matrix          
+        for(int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES;iSample++) {
+          for(int jSample=0; jSample<EcalPulseShape::TEMPLATESAMPLES;jSample++) {
+            //                 std::cout << " iSample, jSample =  " << iSample << " , " << jSample << std::endl;
+            fullpulsecov(iSample+7,jSample+7) = aPulseCov->covval[iSample][jSample];
+          }
+        }
+        
+//         
+        //---- FIXME highly inefficient way to load many times from DB!
+//         
+        //---- loop over all the intervals of validity
+        cnt_iov = 0;
+        for (auto iov : iovs_production) {
+          cnt_iov++;
+          
+          //---- to save time
+          if (cnt_iov>=3) break;
+          
+          
+//           std::cout << " here: cnt_iov = " << cnt_iov << std::endl;
+          if (cnt_iov == 1) { //---- pulse shape used as function to fit
+            std::shared_ptr<C> pa = session.fetchPayload<C>(iov.payloadId);
             EcalPulseShapes::const_iterator it_pulseShape = pa->find(id);
             
             if (it_pulseShape == pa->end()) {
               std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
             }
             
-            coord(_ids[i]);
+            
+            
+            //---- pulse shape to be used as reference ...      
+            for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+              fullpulse(iSample+7) = it_pulseShape->val(iSample);
+            }
+            
+            
+          }
+          else if (cnt_iov == 2) {//---- amplitudes to fit
+            
+            
+            std::shared_ptr<C> pa = session.fetchPayload<C>(iov.payloadId);
+            EcalPulseShapes::const_iterator it_pulseShape = pa->find(id);
+            
+            if (it_pulseShape == pa->end()) {
+              std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
+            }
+            
+            
+            
             
             //
             //---- the input pulse to be fitted
@@ -217,13 +311,11 @@ namespace cond {
             //           std::vector < float > production_samples;
             //           production_samples.push_back(0, 0, 0);     
             
-            SampleVector amplitudes;
             amplitudes[0] = 0.;
             amplitudes[1] = 0.;
             amplitudes[2] = 0.;
-          
+            
             for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-              //                       std::cout << it_pulseShape->val(iSample) << " : " ;
               //---- only the first 7 samples, the rest is extrapolation
               if (iSample<7) {
                 //---- 100 = 100 ADC counts [random number]
@@ -232,126 +324,62 @@ namespace cond {
               }
             }
             
-//             std::cout << " ... here " << std::endl;
-            
-            
-            BXVector activeBX;
-            FullSampleVector fullpulse(FullSampleVector::Zero());
-            FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
-            
-            const EcalPulseCovariances::Item * aPulseCov = nullptr;
-            unsigned int hashedIndex = EBDetId(_ids[i]).hashedIndex();
-            aPulseCov  = &(pulsecovariances)->barrel(hashedIndex);
-            
-//             std::cout << " ... here again " << std::endl;
-            
-            SampleGainVector gainsPedestal;
-            SampleGainVector badSamples = SampleGainVector::Zero();
-            
-//             std::cout << " ... here again 2 " << std::endl;
-//             std::cout << " EcalPulseShape::TEMPLATESAMPLES = " << EcalPulseShape::TEMPLATESAMPLES << std::endl;
-            
-            //---- pulse shape to be used as reference ...      
-            for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-//               std::cout << " iSample =  " << iSample << " : " << EcalPulseShape::TEMPLATESAMPLES << std::endl;
-              fullpulse(iSample+7) = it_pulseShape->val(iSample);
-            }
-            
-//             std::cout << " ... here again 3 " << std::endl;
-            
-            //---- ... and the corresponding covariance matrix          
-            for(int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES;iSample++) {
-              for(int jSample=0; jSample<EcalPulseShape::TEMPLATESAMPLES;jSample++) {
-//                 std::cout << " iSample, jSample =  " << iSample << " , " << jSample << std::endl;
-                fullpulsecov(iSample+7,jSample+7) = aPulseCov->covval[iSample][jSample];
-              }
-            }
-            
-//             std::cout << " ... here again, seriously? " << std::endl;
-            
-            //---- active bunch crossings
-            activeBX.resize(10);
-            activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
-            
-            //           noisecov = aped->rms_x12*aped->rms_x12*noisecors[0];
-            //---- 1.2 ADC: https://github.com/kpedro88/cmssw/blob/master/CondFormats/EcalObjects/interface/EcalPedestals.h ---> it's a float
-            SampleMatrixGainArray noisecors;
-            //---- from https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc
-//             
-//         noisecor ---->    https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.h#L63
-//         
-//         from here:    https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc#L151
-//         due to pointers!!!!! ---> https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc#L141
-            
-//             https://github.com/cms-sw/cmssw/blob/master/RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMultiFitAlgo.h#L28
-//             
-//             const SampleMatrixGainArray &noisecors = noisecor(barrel);
-//             const SampleMatrixGainArray &noisecors = noisecor(true);
-//             noisecov = 1.2 * 1.2 * noisecors[0];
-            
-            
-            
-            
-            
-//             https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc#L374
-//             
-            
-            
-            for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-              gainsPedestal[iSample] = -1;  //-1 for static pedestal
-            }
-            
-//             std::cout << " now fit " << std::endl;
-            
-            bool status = _pulsefunc.DoFit(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
-            float chisq = _pulsefunc.ChiSq();
-            
-            //           if (!status) {
-            //             edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
-            //           }
-            //           
-            unsigned int ipulseintime = 0;
-            for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-              if (_pulsefunc.BXs().coeff(ipulse)==0) {
-                ipulseintime = ipulse;
-                break;
-              }
-            }
-            
-            _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / 100.;
-            
-            bias = _bias [i];
-            ieta = _c.ix_;
-            iphi = _c.iy_;
-            
-            outputTree->Fill();
-            
-//             std::cout << " i = " << i << std::endl;
-            
-            //           
-            //           amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
-            //           amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
-            //           
-            //           
-            
-            
-            
-            
-            
-            
-            //           std::cout <<  _c.ix_ << " " <<  _c.iy_ << " " <<  _c.iz_ << " ::: " ;
-            //           //---- loop over the N-samples of the pulse shape
-            //           for (int is = 0; is < EcalPulseShape::TEMPLATESAMPLES; ++is) {
-            //             std::cout << it_pulseShape->val(is) << " : " ;
-            //           }
-            //           std::cout << std::endl;
           }
           
         }
+        
+        //---- now fit!
+//         std::cout << " fit ... " << std::endl;
+        
+        bool status = _pulsefunc.DoFit(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
+        float chisq = _pulsefunc.ChiSq();
+        
+        if (!status) {
+          std::cout << " warning: bad fit " << std::endl;
+          //             edm::LogWarning("EcalUncalibRecHitMultiFitAlgo::makeRecHit") << "Failed Fit" << std::endl;
+        }
+        
+        unsigned int ipulseintime = 0;
+        for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+          if (_pulsefunc.BXs().coeff(ipulse)==0) {
+            ipulseintime = ipulse;
+            break;
+          }
+        }
+        
+        _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / 100.;
+        
+        bias = _bias [i];
+        
+        if (! (i%100)) {
+          std::cout << " i = " << i << std::endl;
+          std::cout << "     -> " << _pulsefunc.X()[ipulseintime] << std::endl;
+        }
+        
+        //           
+        //           amplitude = status ? _pulsefunc.X()[ipulseintime] : 0.;
+        //           amperr = status ? _pulsefunc.Errors()[ipulseintime] : 0.;
+        //           
+        //           
+        
+        
+        //           std::cout <<  _c.ix_ << " " <<  _c.iy_ << " " <<  _c.iz_ << " ::: " ;
+        //           //---- loop over the N-samples of the pulse shape
+        //           for (int is = 0; is < EcalPulseShape::TEMPLATESAMPLES; ++is) {
+        //             std::cout << it_pulseShape->val(is) << " : " ;
+        //           }
+        //           std::cout << std::endl;
+        
+        
+        ieta = _c.ix_;
+        iphi = _c.iy_;
+        
+        
+        
+        outputTree->Fill();
+        
+      } //---- end loop over crystals
       
-      }
-      
-      std::cout << " cnt_iov = " << cnt_iov << std::endl;
       
       
 //       session.transaction().commit();
