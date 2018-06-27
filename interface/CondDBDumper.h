@@ -211,6 +211,9 @@ namespace cond {
             
             coord(_ids[i]);
             
+            //
+            //---- the input pulse to be fitted
+            //
             //           std::vector < float > production_samples;
             //           production_samples.push_back(0, 0, 0);     
             
@@ -218,7 +221,7 @@ namespace cond {
             amplitudes[0] = 0.;
             amplitudes[1] = 0.;
             amplitudes[2] = 0.;
-            
+          
             for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
               //                       std::cout << it_pulseShape->val(iSample) << " : " ;
               //---- only the first 7 samples, the rest is extrapolation
