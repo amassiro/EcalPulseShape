@@ -107,11 +107,16 @@ namespace cond {
       TFile* outputFile = new TFile ("out.root", "RECREATE");
       TTree* outputTree = new TTree ("outputTree", "outputTree");
       float bias;
+      float EbxM1; //---- energy in BX -1
       int ieta;
       int iphi;
-      outputTree->Branch("bias", &bias);
+      int iz;
+
+      outputTree->Branch("bias",  &bias);
+      outputTree->Branch("EbxM1", &EbxM1);
       outputTree->Branch("ieta", &ieta);
       outputTree->Branch("iphi", &iphi);
+      outputTree->Branch("iz",   &iz);
       
       
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
@@ -341,15 +346,30 @@ namespace cond {
         
         unsigned int ipulseintime = 0;
         for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-          if (_pulsefunc.BXs().coeff(ipulse)==0) {
+          if (_pulsefunc.BXs().coeff(ipulse) == 0) {
             ipulseintime = ipulse;
             break;
           }
         }
         
+        unsigned int ipulseM1 = 0;
+        for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+          if (_pulsefunc.BXs().coeff(ipulse) == -1) {
+            ipulseM1 = ipulse;
+            break;
+          }
+        }
+        
+        
         _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / 100.;
         
         bias = _bias [i];
+        
+//         std::cout << " ipulseintime = " << ipulseintime << std::endl;
+//         std::cout << " ipulseM1     = " << ipulseM1 << std::endl;
+        
+        EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / 100.;
+//         (int(pulsefunc.BXs().coeff(ipulse))) + 5
         
         if (! (i%100)) {
           std::cout << " i = " << i << std::endl;
@@ -373,8 +393,7 @@ namespace cond {
         
         ieta = _c.ix_;
         iphi = _c.iy_;
-        
-        
+        iz   = _c.iz_;
         
         outputTree->Fill();
         
