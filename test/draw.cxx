@@ -123,6 +123,16 @@ void draw(){
   
   ccEE_unzoom->SaveAs("biasEE_unzoom.png");
   ccEE_unzoom->SaveAs("biasEE_unzoom.root");
+
+  
+  
+  TCanvas* ccEE_zoom = new TCanvas ("ccEE_zoom","",1600,600);
+  
+  histoEE_v_bias->Draw("colz");
+  histoEE_v_bias->GetZaxis()->SetRangeUser( 0.99, 1.01 );
+  
+  ccEE_zoom->SaveAs("biasEE_zoom.png");
+  ccEE_zoom->SaveAs("biasEE_zoom.root");
   
   
   

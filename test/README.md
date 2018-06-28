@@ -8,7 +8,12 @@ Steps
 
 
 
-    download
+              simulate    fit
+    download     1         2
+    
+    download     2         3
     
     r99t test/draw.cxx
+    
+    
     

@@ -70,7 +70,7 @@ namespace cond {
       
   public:
     
-    CondDBDumper(std::string tag_production, std::string tag_fit)  : Utilities("") {
+    CondDBDumper(std::string tag_production, std::string tag_fit, int simulate, int fit)  : Utilities("") {
       _tag_production = tag_production;
       _tag_fit        = tag_fit;
       
@@ -93,6 +93,13 @@ namespace cond {
       }
       assert(_ids.size() == 75848);
       assert(_ids.size() == EBDetId::MAX_HASH + 1 + EEDetId::kSizeForDenseIndexing);
+      
+      _simulate = simulate;
+      _fit = fit;
+      
+      std::cout << " simulate = " << _simulate << std::endl;
+      std::cout << " fit      = " << _fit << std::endl;
+      
       
     }
     
@@ -242,11 +249,12 @@ namespace cond {
       //---- loop over all the intervals of validity
       for (auto iov : iovs_production) {
         cnt_iov++;
-        
-        if (cnt_iov == (max_iov-1)) {  //---- pulse shape used as simulation
+        if (cnt_iov == (max_iov - _simulate)) {  //---- pulse shape used as simulation
+//         if (cnt_iov == (max_iov-1)) {  //---- pulse shape used as simulation
           pa_simulation = session.fetchPayload<C>(iov.payloadId);
         }    
-        if (cnt_iov == (max_iov-2)) {  //---- pulse shape used as fit function
+        if (cnt_iov == (max_iov-_fit)) {  //---- pulse shape used as fit function
+//         if (cnt_iov == (max_iov-2)) {  //---- pulse shape used as fit function
           pa_fit = session.fetchPayload<C>(iov.payloadId);
         }    
       }
@@ -485,6 +493,8 @@ namespace cond {
     
     PulseChiSqSNNLS _pulsefunc;
     
+    int _simulate;
+    int _fit;
     
   };
   
