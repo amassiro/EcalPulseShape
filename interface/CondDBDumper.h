@@ -112,11 +112,18 @@ namespace cond {
       int iphi;
       int iz;
 
+      std::vector <float> samplesReco;
+      
+      outputTree->Branch("samplesReco",   &samplesReco);
       outputTree->Branch("bias",  &bias);
       outputTree->Branch("EbxM1", &EbxM1);
       outputTree->Branch("ieta", &ieta);
       outputTree->Branch("iphi", &iphi);
       outputTree->Branch("iz",   &iz);
+      
+      for (unsigned int ibx=0; ibx<10; ++ibx) {
+        samplesReco.push_back(0.);
+      }
       
       
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
@@ -223,6 +230,12 @@ namespace cond {
       //---- loop over the crystals
       for (size_t i = 0; i < 100; ++i) {
 //         for (size_t i = 0; i < _ids.size(); ++i) {
+        
+        
+        for (unsigned int ibx=0; ibx<10; ++ibx) {
+          samplesReco.at(ibx) = 0.;
+        }
+        
         
         DetId id(_ids[i]);
         coord(_ids[i]);
@@ -370,6 +383,19 @@ namespace cond {
         
         EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / 100.;
 //         (int(pulsefunc.BXs().coeff(ipulse))) + 5
+        
+        int NSAMPLES = 10;
+        for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows() ; ++ipulse) {
+          if (status) { 
+//             std::cout << " (int(_pulsefunc.BXs().coeff(ipulse))) " << std::endl;
+            if ((int(_pulsefunc.BXs().coeff(ipulse))) + 5 < NSAMPLES) samplesReco[ (int(_pulsefunc.BXs().coeff(ipulse))) + 5] = _pulsefunc.X()[ ipulse ];
+          }
+          else {
+            samplesReco[ipulse] = -1;
+          }
+        }
+        
+        
         
         if (! (i%100)) {
           std::cout << " i = " << i << std::endl;
