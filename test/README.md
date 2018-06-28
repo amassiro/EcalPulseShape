@@ -10,3 +10,5 @@ Steps
 
     download
     
+    r99t test/draw.cxx
+    

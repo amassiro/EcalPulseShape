@@ -220,16 +220,41 @@ namespace cond {
       
       auto first_iov = iovs_production.begin();
       auto last_iov  = iovs_production.begin();
-      for (int i = 0; i < iovs_production.loadedSize() - 1; ++i) ++last_iov;
+      auto one_to_last_iov  = iovs_production.begin();
+      for (int i = 0; i < iovs_production.loadedSize() - 1; ++i) {
+        ++last_iov;
+        if (i < iovs_production.loadedSize() - 2 ) ++one_to_last_iov;
+      }
 
       
-      std::cout << (*first_iov).since << " " << (*last_iov).since << std::endl;
+      std::cout << (*first_iov).since << " [" <<  (*one_to_last_iov).since  << " ] " << (*last_iov).since << std::endl;
+   
+      
+      //---- find the two payloads corresponding to the two IOVs to be compared
+      std::shared_ptr<C> pa_simulation;
+      std::shared_ptr<C> pa_fit;
       
       int cnt_iov = 0;
-
-      //---- loop over the crystals
-      for (size_t i = 0; i < 100; ++i) {
-//         for (size_t i = 0; i < _ids.size(); ++i) {
+      
+      int max_iov = iovs_production.loadedSize() -1;
+      std::cout << " max_iov = " << max_iov << std::endl;
+      
+      //---- loop over all the intervals of validity
+      for (auto iov : iovs_production) {
+        cnt_iov++;
+        
+        if (cnt_iov == (max_iov-1)) {  //---- pulse shape used as simulation
+          pa_simulation = session.fetchPayload<C>(iov.payloadId);
+        }    
+        if (cnt_iov == (max_iov-2)) {  //---- pulse shape used as fit function
+          pa_fit = session.fetchPayload<C>(iov.payloadId);
+        }    
+      }
+        
+        
+        //---- loop over the crystals
+//       for (size_t i = 0; i < 100; ++i) {
+      for (size_t i = 0; i < _ids.size(); ++i) {
         
         
         for (unsigned int ibx=0; ibx<10; ++ibx) {
@@ -280,75 +305,51 @@ namespace cond {
           }
         }
         
-//         
-        //---- FIXME highly inefficient way to load many times from DB!
-//         
-        //---- loop over all the intervals of validity
-        cnt_iov = 0;
-        for (auto iov : iovs_production) {
-          cnt_iov++;
-          
-          //---- to save time
-          if (cnt_iov>=3) break;
-          
-          
-//           std::cout << " here: cnt_iov = " << cnt_iov << std::endl;
-          if (cnt_iov == 1) { //---- pulse shape used as function to fit
-            std::shared_ptr<C> pa = session.fetchPayload<C>(iov.payloadId);
-            EcalPulseShapes::const_iterator it_pulseShape = pa->find(id);
-            
-            if (it_pulseShape == pa->end()) {
-              std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
-            }
-            
-            
-            
-            //---- pulse shape to be used as reference ...      
-            for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-              fullpulse(iSample+7) = it_pulseShape->val(iSample);
-            }
-            
-            
-          }
-          else if (cnt_iov == 2) {//---- amplitudes to fit
-            
-            
-            std::shared_ptr<C> pa = session.fetchPayload<C>(iov.payloadId);
-            EcalPulseShapes::const_iterator it_pulseShape = pa->find(id);
-            
-            if (it_pulseShape == pa->end()) {
-              std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
-            }
-            
-            
-            
-            
-            //
-            //---- the input pulse to be fitted
-            //
-            //           std::vector < float > production_samples;
-            //           production_samples.push_back(0, 0, 0);     
-            
-            amplitudes[0] = 0.;
-            amplitudes[1] = 0.;
-            amplitudes[2] = 0.;
-            
-            for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-              //---- only the first 7 samples, the rest is extrapolation
-              if (iSample<7) {
-                //---- 100 = 100 ADC counts [random number]
-                //               production_samples.push_back( 100* it_pulseShape->val(iSample) );
-                amplitudes[iSample+3] = 100* it_pulseShape->val(iSample);
-              }
-            }
-            
-          }
-          
-        }
-        
-        //---- now fit!
-//         std::cout << " fit ... " << std::endl;
-        
+         
+         EcalPulseShapes::const_iterator it_pulseShape_fit = pa_fit->find(id);
+         
+         if (it_pulseShape_fit == pa_fit->end()) {
+           std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
+         }
+         
+         
+         
+         //---- pulse shape to be used as reference ...      
+         for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+           fullpulse(iSample+7) = it_pulseShape_fit->val(iSample);
+         }
+         
+         
+         EcalPulseShapes::const_iterator it_pulseShape_simulation = pa_simulation->find(id);
+         
+         if (it_pulseShape_simulation == pa_simulation->end()) {
+           std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
+         }
+         
+         
+         
+         
+         //
+         //---- the input pulse to be fitted
+         //
+         //           std::vector < float > production_samples;
+         //           production_samples.push_back(0, 0, 0);     
+         
+         amplitudes[0] = 0.;
+         amplitudes[1] = 0.;
+         amplitudes[2] = 0.;
+         
+         for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+           //---- only the first 7 samples, the rest is extrapolation
+           if (iSample<7) {
+             //---- 100 = 100 ADC counts [random number]
+             //               production_samples.push_back( 100* it_pulseShape_simulation->val(iSample) );
+             amplitudes[iSample+3] = 100* it_pulseShape_simulation->val(iSample);
+           }
+         }
+         
+         //---- now fit!
+         
         bool status = _pulsefunc.DoFit(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
         float chisq = _pulsefunc.ChiSq();
         
@@ -397,7 +398,7 @@ namespace cond {
         
         
         
-        if (! (i%100)) {
+        if (! (i%1000)) {
           std::cout << " i = " << i << std::endl;
           std::cout << "     -> " << _pulsefunc.X()[ipulseintime] << std::endl;
         }
