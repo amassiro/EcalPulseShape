@@ -65,9 +65,9 @@
 namespace cond {
   
   template<class C>
-//   class CondDBDumper {
-    class CondDBDumper : public cond::Utilities {
-      
+  //   class CondDBDumper {
+  class CondDBDumper : public cond::Utilities {
+    
   public:
     
     CondDBDumper(std::string tag_production, std::string tag_fit, int simulate, int fit)  : Utilities("") {
@@ -107,7 +107,7 @@ namespace cond {
     {
     }
     
-        
+    
     // main loop
     int execute() {
       
@@ -118,7 +118,7 @@ namespace cond {
       int ieta;
       int iphi;
       int iz;
-
+      
       std::vector <float> samplesReco;
       
       outputTree->Branch("samplesReco",   &samplesReco);
@@ -135,28 +135,28 @@ namespace cond {
       
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
       std::string db = "";
-//       if (hasOptionValue("db")) {
-//         if      (db == "dev") connect = "frontier://FrontierPrep/CMS_CONDITIONS";
-//           else if (db == "pro") connect = "frontier://PromptProd/CMS_CONDITIONS";
-//             else if (db == "arc") connect = "frontier://FrontierArc/CMS_CONDITIONS";
-//               else if (db == "int") connect = "frontier://FrontierInt/CMS_CONDITIONS";
-//                 else {
-//                   connect = getOptionValue<std::string>("db" );
-//                 }
-//       }
-//       
+      //       if (hasOptionValue("db")) {
+      //         if      (db == "dev") connect = "frontier://FrontierPrep/CMS_CONDITIONS";
+      //           else if (db == "pro") connect = "frontier://PromptProd/CMS_CONDITIONS";
+      //             else if (db == "arc") connect = "frontier://FrontierArc/CMS_CONDITIONS";
+      //               else if (db == "int") connect = "frontier://FrontierInt/CMS_CONDITIONS";
+      //                 else {
+      //                   connect = getOptionValue<std::string>("db" );
+      //                 }
+      //       }
+      //       
       cond::persistency::ConnectionPool connPool;
-
+      
       int niov = -1;
-
+      
       cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
       cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
-
+      
       connPool.configure();
       cond::persistency::Session session = connPool.createSession(connect);
-
-//       std::string tag = "EcalPulseShapes_hlt";
-//       std::string tag = _tag_production;
+      
+      //       std::string tag = "EcalPulseShapes_hlt";
+      //       std::string tag = _tag_production;
       
       
       
@@ -164,7 +164,7 @@ namespace cond {
       
       //---- get pulse covariances 
       cond::persistency::IOVProxy iovs_EcalPulseCovariances = session.readIov("EcalPulseCovariances_mc", true);
-//       EcalPulseCovariancesRcd       EcalPulseCovariances_mc 
+      //       EcalPulseCovariancesRcd       EcalPulseCovariances_mc 
       
       std::shared_ptr<EcalPulseCovariances> pulsecovariances;
       for (auto iov : iovs_EcalPulseCovariances) {
@@ -175,28 +175,37 @@ namespace cond {
       
       
       //---- get samples correlation -> for noise!
-//       EcalSamplesCorrelationRcd EcalSamplesCorrelation_mc
+      //       EcalSamplesCorrelationRcd EcalSamplesCorrelation_mc
       cond::persistency::IOVProxy iovs_EcalSamplesCorrelation = session.readIov("EcalSamplesCorrelation_mc", true);
       std::shared_ptr<EcalSamplesCorrelation> noisecovariances;
       for (auto iov : iovs_EcalSamplesCorrelation) {
         noisecovariances = session.fetchPayload<EcalSamplesCorrelation>(iov.payloadId);
       }
       
-      SampleMatrix noisecov;
-      noisecov = SampleMatrix::Zero();
+      SampleMatrix noisecovEB;
+      noisecovEB = SampleMatrix::Zero();
       int nnoise = SampleVector::RowsAtCompileTime;
       for (int i=0; i<nnoise; ++i) {
         for (int j=0; j<nnoise; ++j) {
           int vidx = std::abs(j-i);
-          noisecov(i,j) = 1.2 * 1.2 * noisecovariances->EBG12SamplesCorrelation[vidx];
-//           noisecorEBg12(i,j) = noisecovariances->EBG12SamplesCorrelation[vidx];
+          noisecovEB(i,j) = 1.2 * 1.2 * noisecovariances->EBG12SamplesCorrelation[vidx];
+          //           noisecorEBg12(i,j) = noisecovariances->EBG12SamplesCorrelation[vidx];
+        }
+      }
+      
+      SampleMatrix noisecovEE;
+      noisecovEE = SampleMatrix::Zero();
+      for (int i=0; i<nnoise; ++i) {
+        for (int j=0; j<nnoise; ++j) {
+          int vidx = std::abs(j-i);
+          noisecovEE(i,j) = 1.2 * 1.2 * noisecovariances->EEG12SamplesCorrelation[vidx];
         }
       }
       
       
       //           noisecov = aped->rms_x12*aped->rms_x12*noisecors[0];
       //---- 1.2 ADC: https://github.com/kpedro88/cmssw/blob/master/CondFormats/EcalObjects/interface/EcalPedestals.h ---> it's a float
-      SampleMatrixGainArray noisecors;
+      //    SampleMatrixGainArray noisecors;
       //---- from https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.cc
       //             
       //         noisecor ---->    https://github.com/cms-sw/cmssw/blob/566f40c323beef46134485a45ea53349f59ae534/RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerMultiFit.h#L63
@@ -232,10 +241,10 @@ namespace cond {
         ++last_iov;
         if (i < iovs_production.loadedSize() - 2 ) ++one_to_last_iov;
       }
-
+      
       
       std::cout << (*first_iov).since << " [" <<  (*one_to_last_iov).since  << " ] " << (*last_iov).since << std::endl;
-   
+      
       
       //---- find the two payloads corresponding to the two IOVs to be compared
       std::shared_ptr<C> pa_simulation;
@@ -250,18 +259,18 @@ namespace cond {
       for (auto iov : iovs_production) {
         cnt_iov++;
         if (cnt_iov == (max_iov - _simulate)) {  //---- pulse shape used as simulation
-//         if (cnt_iov == (max_iov-1)) {  //---- pulse shape used as simulation
+          //         if (cnt_iov == (max_iov-1)) {  //---- pulse shape used as simulation
           pa_simulation = session.fetchPayload<C>(iov.payloadId);
         }    
         if (cnt_iov == (max_iov-_fit)) {  //---- pulse shape used as fit function
-//         if (cnt_iov == (max_iov-2)) {  //---- pulse shape used as fit function
+          //         if (cnt_iov == (max_iov-2)) {  //---- pulse shape used as fit function
           pa_fit = session.fetchPayload<C>(iov.payloadId);
         }    
       }
-        
-        
-        //---- loop over the crystals
-//       for (size_t i = 0; i < 100; ++i) {
+      
+      
+      //---- loop over the crystals
+      //       for (size_t i = 0; i < 100; ++i) {
       for (size_t i = 0; i < _ids.size(); ++i) {
         
         
@@ -291,8 +300,16 @@ namespace cond {
         
         
         const EcalPulseCovariances::Item * aPulseCov = nullptr;
-        unsigned int hashedIndex = EBDetId(_ids[i]).hashedIndex();
-        aPulseCov  = &(pulsecovariances)->barrel(hashedIndex);
+        //---- EB
+        if (_c.iz_ == 0 ) {
+          unsigned int hashedIndex = EBDetId(_ids[i]).hashedIndex();
+          aPulseCov  = &(pulsecovariances)->barrel(hashedIndex);  
+        }
+        //---- EE
+        else {
+          unsigned int hashedIndex = EEDetId(_ids[i]).hashedIndex();
+          aPulseCov  = &(pulsecovariances)->endcap(hashedIndex);
+        }
         
         SampleGainVector gainsPedestal;
         SampleGainVector badSamples = SampleGainVector::Zero();
@@ -313,52 +330,59 @@ namespace cond {
           }
         }
         
-         
-         EcalPulseShapes::const_iterator it_pulseShape_fit = pa_fit->find(id);
-         
-         if (it_pulseShape_fit == pa_fit->end()) {
-           std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
-         }
-         
-         
-         
-         //---- pulse shape to be used as reference ...      
-         for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-           fullpulse(iSample+7) = it_pulseShape_fit->val(iSample);
-         }
-         
-         
-         EcalPulseShapes::const_iterator it_pulseShape_simulation = pa_simulation->find(id);
-         
-         if (it_pulseShape_simulation == pa_simulation->end()) {
-           std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
-         }
-         
-         
-         
-         
-         //
-         //---- the input pulse to be fitted
-         //
-         //           std::vector < float > production_samples;
-         //           production_samples.push_back(0, 0, 0);     
-         
-         amplitudes[0] = 0.;
-         amplitudes[1] = 0.;
-         amplitudes[2] = 0.;
-         
-         for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-           //---- only the first 7 samples, the rest is extrapolation
-           if (iSample<7) {
-             //---- 100 = 100 ADC counts [random number]
-             //               production_samples.push_back( 100* it_pulseShape_simulation->val(iSample) );
-             amplitudes[iSample+3] = 100* it_pulseShape_simulation->val(iSample);
-           }
-         }
-         
-         //---- now fit!
-         
-        bool status = _pulsefunc.DoFit(amplitudes,noisecov,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
+        
+        EcalPulseShapes::const_iterator it_pulseShape_fit = pa_fit->find(id);
+        
+        if (it_pulseShape_fit == pa_fit->end()) {
+          std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
+        }
+        
+        
+        
+        //---- pulse shape to be used as reference ...      
+        for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+          fullpulse(iSample+7) = it_pulseShape_fit->val(iSample);
+        }
+        
+        
+        EcalPulseShapes::const_iterator it_pulseShape_simulation = pa_simulation->find(id);
+        
+        if (it_pulseShape_simulation == pa_simulation->end()) {
+          std::cout << "Cannot find value for DetId " << id.rawId() << std::endl;
+        }
+        
+        
+        
+        
+        //
+        //---- the input pulse to be fitted
+        //
+        //           std::vector < float > production_samples;
+        //           production_samples.push_back(0, 0, 0);     
+        
+        amplitudes[0] = 0.;
+        amplitudes[1] = 0.;
+        amplitudes[2] = 0.;
+        
+        for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+          //---- only the first 7 samples, the rest is extrapolation
+          if (iSample<7) {
+            //---- 100 = 100 ADC counts [random number]
+            //               production_samples.push_back( 100* it_pulseShape_simulation->val(iSample) );
+            amplitudes[iSample+3] = 100* it_pulseShape_simulation->val(iSample);
+          }
+        }
+        
+        //---- now fit!
+        bool status = false;
+        
+        //---- EB
+        if (_c.iz_ == 0 ) {
+          status = _pulsefunc.DoFit(amplitudes,noisecovEB,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
+        }
+        else {
+          status = _pulsefunc.DoFit(amplitudes,noisecovEE,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
+        }
         float chisq = _pulsefunc.ChiSq();
         
         if (!status) {
@@ -387,16 +411,16 @@ namespace cond {
         
         bias = _bias [i];
         
-//         std::cout << " ipulseintime = " << ipulseintime << std::endl;
-//         std::cout << " ipulseM1     = " << ipulseM1 << std::endl;
+        //         std::cout << " ipulseintime = " << ipulseintime << std::endl;
+        //         std::cout << " ipulseM1     = " << ipulseM1 << std::endl;
         
         EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / 100.;
-//         (int(pulsefunc.BXs().coeff(ipulse))) + 5
+        //         (int(pulsefunc.BXs().coeff(ipulse))) + 5
         
         int NSAMPLES = 10;
         for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows() ; ++ipulse) {
           if (status) { 
-//             std::cout << " (int(_pulsefunc.BXs().coeff(ipulse))) " << std::endl;
+            //             std::cout << " (int(_pulsefunc.BXs().coeff(ipulse))) " << std::endl;
             if ((int(_pulsefunc.BXs().coeff(ipulse))) + 5 < NSAMPLES) samplesReco[ (int(_pulsefunc.BXs().coeff(ipulse))) + 5] = _pulsefunc.X()[ ipulse ];
           }
           else {
@@ -436,8 +460,8 @@ namespace cond {
       
       
       
-//       session.transaction().commit();
-
+      //       session.transaction().commit();
+      
       outputTree->Write();
       
       outputFile->Close();

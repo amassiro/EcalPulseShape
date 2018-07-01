@@ -91,6 +91,28 @@ void draw(){
   
   
   
+  TCanvas* ccEB_unzoom = new TCanvas ("ccEB_unzoom","",1600,600);
+  
+  histoEB_v_bias->Draw("colz");
+  histoEB_v_bias->GetZaxis()->SetRangeUser( 0.90, 1.10 );
+  
+  ccEB_unzoom->SaveAs("biasEB_unzoom.png");
+  ccEB_unzoom->SaveAs("biasEB_unzoom.root");
+  
+  
+  
+  TCanvas* ccEB_zoom = new TCanvas ("ccEB_zoom","",1600,600);
+  
+  histoEB_v_bias->Draw("colz");
+  histoEB_v_bias->GetZaxis()->SetRangeUser( 0.995, 1.005 );
+  
+  ccEB_zoom->SaveAs("biasEB_zoom.png");
+  ccEB_zoom->SaveAs("biasEB_zoom.root");
+  
+  
+  
+  
+  
   //---- EE ----
   TCanvas* ccEE = new TCanvas ("ccEE","",1600,600);
   ccEE->cd();
