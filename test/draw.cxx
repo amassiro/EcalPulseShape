@@ -7,11 +7,55 @@ void draw(){
   gStyle->SetOptStat(0);
   
    
+  //
+  // ---- read iring definition from file
+  //        (ix, iy, iz) -> ring
+  //
   
-  // input file format:
-  //
-  // ix/ieta iy/iphi   v_iz/0       G12-ped  G12-rms     G6-ped  G6-rms      G1-ped  G1-rms      rawId
-  //
+  
+  std::map < std::pair<int, int> , int > iring_map_plus;
+  std::map < std::pair<int, int> , int > iring_map_minus;
+  
+  std::ifstream fileEEring ("test/eerings.dat"); 
+  
+  std::string buffer;
+  int num;
+  if (!fileEEring.is_open()) {
+    std::cerr << "** ERROR: Can't open for input" << std::endl;
+    return false;
+  }
+  
+  while(!fileEEring.eof()) {
+    getline(fileEEring,buffer);
+    if (buffer != ""){ ///---> save from empty line at the end!
+      int ix;
+      int iy;
+      int iz;
+      int iring;
+      
+      //       std::cout << " buffer = " << buffer << std::endl;
+      
+      std::stringstream line( buffer );      
+      line >> ix; 
+      line >> iy; 
+      line >> iz; 
+      line >> iring; 
+      
+      std::pair<int, int> ixiy (ix, iy);
+      //       if (iz>0) iring_map_plus  [ixiy] = 38 - iring;
+      //       else      iring_map_minus [ixiy] = 38 - iring;
+      
+      if (iz>0) iring_map_plus  [ixiy] = iring;
+      else      iring_map_minus [ixiy] = iring;
+      
+    } 
+  }
+  
+  
+  
+  
+  
+  
   
   
   
@@ -175,15 +219,26 @@ void draw(){
   for (int iter = 0; iter < ix_ieta.size(); iter++) {
     if (v_iz.at(iter) != 0) {
       
-      float dx = ix_ieta.at(iter) - 50;
-      float dy = iy_iphi.at(iter) - 50;
+      int iring = -99;
+      std::pair<int, int> ixiy (ix_ieta.at(iter), iy_iphi.at(iter));   
       
-      float ring = sqrt( dx*dx + dy*dy );
+      if (v_iz.at(iter) > 0) {
+        iring = iring_map_plus [ixiy];
+      }
+      else {
+        iring = iring_map_minus [ixiy];        
+      }
       
-      int iring = round(ring) - 11;  //---- 12 [ = (62 - 50 - 1) from the 2D plot] is the first ring
-      
-      
-      if (iring > (50-11+2) || iring < 0) std::cout << " what ?!?   iring = " << iring << " dx = " << dx << " dy = " << dy << " :::: ix = " << ix_ieta.at(iter) << "  iy = " << iy_iphi.at(iter) << std::endl;
+           
+//       float dx = ix_ieta.at(iter) - 50;
+//       float dy = iy_iphi.at(iter) - 50;
+//       
+//       float ring = sqrt( dx*dx + dy*dy );
+//       
+//       int iring = round(ring) - 11;  //---- 12 [ = (62 - 50 - 1) from the 2D plot] is the first ring
+//       
+//       
+//       if (iring > (50-11+2) || iring < 0) std::cout << " what ?!?   iring = " << iring << " dx = " << dx << " dy = " << dy << " :::: ix = " << ix_ieta.at(iter) << "  iy = " << iy_iphi.at(iter) << std::endl;
       
       if (v_iz.at(iter) > 0) {
         
