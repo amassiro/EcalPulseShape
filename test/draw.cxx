@@ -258,11 +258,23 @@ void draw(){
   
   TGraph *gr_EEPlus_v_bias = new TGraph();     TGraph *gr_EEMinus_v_bias = new TGraph();
   
-  for (int iter = 0; iter < (50-11+3); iter++) {
+  for (int iter = 0; iter < (39); iter++) {
+//   for (int iter = 0; iter < (50-11+3); iter++) {
     
     
-    gr_EEPlus_v_bias-> SetPoint (iter,  42 -  iter,   ringPlus_count.at(iter) ? ringPlus_v_bias.at(iter) / ringPlus_count.at(iter) : 0 ) ;               
-    gr_EEMinus_v_bias-> SetPoint (iter, 42 -   iter,   ringMinus_count.at(iter) ?  ringMinus_v_bias.at(iter) / ringMinus_count.at(iter) : 0 ) ;  
+//     gr_EEPlus_v_bias-> SetPoint (iter,  42 -  iter,   ringPlus_count.at(iter) ? ringPlus_v_bias.at(iter) / ringPlus_count.at(iter) : 0 ) ;               
+//     gr_EEMinus_v_bias-> SetPoint (iter, 42 -   iter,   ringMinus_count.at(iter) ?  ringMinus_v_bias.at(iter) / ringMinus_count.at(iter) : 0 ) ;  
+//     
+//     gr_EEPlus_v_bias-> SetPoint (iter,  42 -  iter,   ringPlus_count.at(iter) ? ringPlus_v_bias.at(iter) / ringPlus_count.at(iter) : 0 ) ;               
+//     gr_EEMinus_v_bias-> SetPoint (iter, 42 -   iter,   ringMinus_count.at(iter) ?  ringMinus_v_bias.at(iter) / ringMinus_count.at(iter) : 0 ) ;  
+    
+
+    gr_EEPlus_v_bias-> SetPoint (iter,  iter +1,   ringPlus_count.at(iter) ? ringPlus_v_bias.at(iter) / ringPlus_count.at(iter) : 0 ) ;               
+    gr_EEMinus_v_bias-> SetPoint (iter, iter +1,   ringMinus_count.at(iter) ?  ringMinus_v_bias.at(iter) / ringMinus_count.at(iter) : 0 ) ;  
+    
+    gr_EEPlus_v_bias-> SetPoint (iter,  iter +1,   ringPlus_count.at(iter) ? ringPlus_v_bias.at(iter) / ringPlus_count.at(iter) : 0 ) ;               
+    gr_EEMinus_v_bias-> SetPoint (iter, iter +1,   ringMinus_count.at(iter) ?  ringMinus_v_bias.at(iter) / ringMinus_count.at(iter) : 0 ) ;  
+    
     
   }
   
@@ -278,6 +290,9 @@ void draw(){
   
   //---- style (end) ----
   
+  TLegend* leg_EE = new TLegend(0.20,0.20,0.50,0.40);
+  leg_EE->AddEntry(gr_EEPlus_v_bias, "EE+","pl");
+  leg_EE->AddEntry(gr_EEMinus_v_bias,"EE-","pl");
   
   
   TCanvas* ccRing = new TCanvas ("ccRing","",800,600);
@@ -285,8 +300,10 @@ void draw(){
   gr_EEPlus_v_bias->Draw("APL");
   gr_EEMinus_v_bias->Draw("PL");
   
-  gr_EEPlus_v_bias->GetYaxis()->SetTitle("ped ADC");
+  gr_EEPlus_v_bias->GetYaxis()->SetTitle("bias");
   gr_EEPlus_v_bias->GetXaxis()->SetTitle("iRing");
+  
+  leg_EE->Draw();
   
   ccRing->SaveAs("biasVsRing_EE.png");
   ccRing->SaveAs("biasVsRing_EE.root");
@@ -365,8 +382,10 @@ void draw(){
   gr_EBPlus_v_bias->Draw("APL");
   gr_EBMinus_v_bias->Draw("PL");
   
-  gr_EBPlus_v_bias->GetYaxis()->SetTitle("ped ADC");
+  gr_EBPlus_v_bias->GetYaxis()->SetTitle("bias");
   gr_EBPlus_v_bias->GetXaxis()->SetTitle("i#eta");
+  
+  leg_EB->Draw();
   
   ccRingEB->SaveAs("biasVsRing_EB.png");
   ccRingEB->SaveAs("biasVsRing_EB.root");
