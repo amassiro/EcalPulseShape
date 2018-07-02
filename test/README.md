@@ -17,3 +17,14 @@ Steps
     
     
     
+    
+    
+    
+Legacy 2016:
+
+    https://cms-conddb.cern.ch/cmsDbBrowser/list/Prod/gts/80X_dataRun2_2016LegacyRepro_v4
+    
+    EcalPulseShapes_Legacy2016_v2
+    
+    
+    scan_all EcalPulseShapes_Legacy2016_v2

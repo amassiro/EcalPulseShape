@@ -103,6 +103,42 @@ namespace cond {
       
     }
     
+    
+    CondDBDumper(std::string tag_all)  : Utilities("") {
+      _tag_production = tag_all;
+      _tag_fit        = tag_all;
+      
+      _bias.resize(EBDetId::MAX_HASH + 1 + EEDetId::kSizeForDenseIndexing);
+      _ids.resize(EBDetId::MAX_HASH + 1 + EEDetId::kSizeForDenseIndexing);      
+      for (int hi = EBDetId::MIN_HASH; hi <= EBDetId::MAX_HASH; ++hi ) {
+        EBDetId ebId = EBDetId::unhashIndex(hi);
+        if (ebId != EBDetId()) {
+          _ids[hi] = ebId;
+          _bias[hi] = 1.;
+        }
+      }
+      for ( int hi = 0; hi < EEDetId::kSizeForDenseIndexing; ++hi ) {
+        EEDetId eeId = EEDetId::unhashIndex(hi);
+        if (eeId != EEDetId()) {
+          int idx = EBDetId::MAX_HASH + 1 + hi;
+          _ids[idx] = eeId;
+          _bias[idx] = -1.;
+        }
+      }
+      assert(_ids.size() == 75848);
+      assert(_ids.size() == EBDetId::MAX_HASH + 1 + EEDetId::kSizeForDenseIndexing);
+      
+      _simulate = -1;
+      _fit = -1;
+      
+      std::cout << " simulate = " << _simulate << std::endl;
+      std::cout << " fit      = " << _fit << std::endl;
+         
+    }
+    
+    
+    
+    
     ~CondDBDumper()
     {
     }
@@ -111,40 +147,8 @@ namespace cond {
     // main loop
     int execute() {
       
-      TFile* outputFile = new TFile ("out.root", "RECREATE");
-      TTree* outputTree = new TTree ("outputTree", "outputTree");
-      float bias;
-      float EbxM1; //---- energy in BX -1
-      int ieta;
-      int iphi;
-      int iz;
-      
-      std::vector <float> samplesReco;
-      
-      outputTree->Branch("samplesReco",   &samplesReco);
-      outputTree->Branch("bias",  &bias);
-      outputTree->Branch("EbxM1", &EbxM1);
-      outputTree->Branch("ieta", &ieta);
-      outputTree->Branch("iphi", &iphi);
-      outputTree->Branch("iz",   &iz);
-      
-      for (unsigned int ibx=0; ibx<10; ++ibx) {
-        samplesReco.push_back(0.);
-      }
-      
-      
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
       std::string db = "";
-      //       if (hasOptionValue("db")) {
-      //         if      (db == "dev") connect = "frontier://FrontierPrep/CMS_CONDITIONS";
-      //           else if (db == "pro") connect = "frontier://PromptProd/CMS_CONDITIONS";
-      //             else if (db == "arc") connect = "frontier://FrontierArc/CMS_CONDITIONS";
-      //               else if (db == "int") connect = "frontier://FrontierInt/CMS_CONDITIONS";
-      //                 else {
-      //                   connect = getOptionValue<std::string>("db" );
-      //                 }
-      //       }
-      //       
       cond::persistency::ConnectionPool connPool;
       
       int niov = -1;
@@ -244,6 +248,50 @@ namespace cond {
       
       
       std::cout << (*first_iov).since << " [" <<  (*one_to_last_iov).since  << " ] " << (*last_iov).since << std::endl;
+
+      first_iov = iovs_production.begin();
+      last_iov  = iovs_production.begin();
+      for (int i = 0; i < iovs_production.loadedSize() - 1; ++i) {
+        if (i < iovs_production.loadedSize() - _simulate ) {
+          ++first_iov;
+        }
+        if (i < iovs_production.loadedSize() - _fit ) {
+          ++last_iov;        
+        }
+      }
+      
+      std::cout << (*first_iov).since << " -- " << (*last_iov).since << std::endl;
+      
+        
+      
+      
+      std::string name_output_file = "out_" + std::to_string((*first_iov).since) + "_" + std::to_string((*last_iov).since) + ".root";
+      
+      TFile* outputFile = new TFile ("out.root", "RECREATE");
+      TTree* outputTree = new TTree ("outputTree", "outputTree");
+      float bias;
+      float EbxM1; //---- energy in BX -1
+      int ieta;
+      int iphi;
+      int iz;
+      
+      std::vector <float> samplesReco;
+      
+      outputTree->Branch("samplesReco",   &samplesReco);
+      outputTree->Branch("bias",  &bias);
+      outputTree->Branch("EbxM1", &EbxM1);
+      outputTree->Branch("ieta", &ieta);
+      outputTree->Branch("iphi", &iphi);
+      outputTree->Branch("iz",   &iz);
+      
+      for (unsigned int ibx=0; ibx<10; ++ibx) {
+        samplesReco.push_back(0.);
+      }
+      
+      
+      
+      
+      
       
       
       //---- find the two payloads corresponding to the two IOVs to be compared
