@@ -1,6 +1,6 @@
-void draw(){
+void draw(std::string name_input_file = "out.root"){
   
-  TFile* inputFile = new TFile ("out.root", "READ");  
+  TFile* inputFile = new TFile (name_input_file.c_str(), "READ");  
   
   TTree* outputTree = (TTree*) inputFile -> Get ("outputTree");
   
