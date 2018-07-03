@@ -212,7 +212,7 @@ namespace cond {
       for (int i=0; i<nnoise; ++i) {
         for (int j=0; j<nnoise; ++j) {
           int vidx = std::abs(j-i);
-          noisecovEB(i,j) = 1.2 * 1.2 * noisecovariances->EBG12SamplesCorrelation[vidx];
+          noisecovEB(i,j) = 2.0 * 2.0 * noisecovariances->EBG12SamplesCorrelation[vidx];
           //           noisecorEBg12(i,j) = noisecovariances->EBG12SamplesCorrelation[vidx];
         }
       }
@@ -222,7 +222,7 @@ namespace cond {
       for (int i=0; i<nnoise; ++i) {
         for (int j=0; j<nnoise; ++j) {
           int vidx = std::abs(j-i);
-          noisecovEE(i,j) = 1.2 * 1.2 * noisecovariances->EEG12SamplesCorrelation[vidx];
+          noisecovEE(i,j) = 2.0 * 2.0 * noisecovariances->EEG12SamplesCorrelation[vidx];
         }
       }
       
@@ -241,7 +241,7 @@ namespace cond {
       //             
       //             const SampleMatrixGainArray &noisecors = noisecor(barrel);
       //             const SampleMatrixGainArray &noisecors = noisecor(true);
-      //             noisecov = 1.2 * 1.2 * noisecors[0];
+      //             noisecov = 2.0 * 2.0 * noisecors[0];
       
       
       
