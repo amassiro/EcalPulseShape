@@ -18,6 +18,13 @@ Steps
     
     
     
+    r99t test/draw.cxx\(\"out_EcalPulseShapes_hlt_EcalPulseShapes_hlt318745_317506-amplitude-10.root\"\)
+    r99t test/draw.cxx\(\"out_EcalPulseShapes_hlt_EcalPulseShapes_hlt318745_317506-amplitude-100.root\"\)
+    r99t test/draw.cxx\(\"out_EcalPulseShapes_hlt_EcalPulseShapes_hlt318745_317506-amplitude-1000.root\"\)
+    
+    
+    
+    
     
     
 Legacy 2016:

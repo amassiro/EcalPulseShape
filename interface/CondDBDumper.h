@@ -151,6 +151,9 @@ namespace cond {
     // main loop
     int execute() {
 
+      
+      float Amplitude_ADC = 100.;
+      
 //       std::cout << " :: execute " << std::endl;
       
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
@@ -435,7 +438,7 @@ namespace cond {
               //---- only the first 7 samples, the rest is extrapolation
               if (iSample<7) {
                 //---- 100 = 100 ADC counts [random number]
-                amplitudes[iSample+3] = 100* it_pulseShape_simulation->val(iSample);
+                amplitudes[iSample+3] = Amplitude_ADC * it_pulseShape_simulation->val(iSample);
               }
             }
             
@@ -471,11 +474,11 @@ namespace cond {
               }
             }
             
-            _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / 100.;
+            _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / Amplitude_ADC;
             
             bias = _bias [i];
             
-            EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / 100.;
+            EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / Amplitude_ADC;
             
             int NSAMPLES = 10;
             for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows() ; ++ipulse) {
@@ -686,7 +689,7 @@ namespace cond {
           if (iSample<7) {
             //---- 100 = 100 ADC counts [random number]
             //               production_samples.push_back( 100* it_pulseShape_simulation->val(iSample) );
-            amplitudes[iSample+3] = 100* it_pulseShape_simulation->val(iSample);
+            amplitudes[iSample+3] = Amplitude_ADC * it_pulseShape_simulation->val(iSample);
           }
         }
         
@@ -724,14 +727,14 @@ namespace cond {
         }
         
         
-        _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / 100.;
+        _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / Amplitude_ADC;
         
         bias = _bias [i];
         
         //         std::cout << " ipulseintime = " << ipulseintime << std::endl;
         //         std::cout << " ipulseM1     = " << ipulseM1 << std::endl;
         
-        EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / 100.;
+        EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / Amplitude_ADC;
         //         (int(pulsefunc.BXs().coeff(ipulse))) + 5
         
         int NSAMPLES = 10;
