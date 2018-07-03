@@ -13,6 +13,10 @@ Steps
     
     download     2         3
     
+
+    download     5        6
+
+    
     r99t test/draw.cxx
     
     
@@ -22,6 +26,11 @@ Steps
     r99t test/draw.cxx\(\"out_EcalPulseShapes_hlt_EcalPulseShapes_hlt318745_317506-amplitude-100.root\"\)
     r99t test/draw.cxx\(\"out_EcalPulseShapes_hlt_EcalPulseShapes_hlt318745_317506-amplitude-1000.root\"\)
     
+    
+    
+    r99t test/draw.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3304911_304209-amp10.root\"\)
+    r99t test/draw.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3304911_304209-amp100.root\"\)
+    r99t test/draw.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3304911_304209-amp1000.root\"\)
     
     
     

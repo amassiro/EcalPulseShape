@@ -41,8 +41,11 @@ int main(int argc, char** argv) {
  
  //                                                                                                          simulate    fit
 //  cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit("EcalPulseShapes_hlt", "EcalPulseShapes_hlt",  1      ,    2);
- cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit("EcalPulseShapes_hlt", "EcalPulseShapes_hlt",  simulate      ,    fit);
+//  cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit("EcalPulseShapes_hlt", "EcalPulseShapes_hlt",  simulate      ,    fit);
 
+ cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit("EcalPulseShapes_October2017_rereco_v3", "EcalPulseShapes_October2017_rereco_v3",  simulate      ,    fit);
+ 
+ 
  int argc2 = argc-2;
  char** argv2 = argv; 
  PulseShapeGenerationAndFit.run(argc2, argv2);

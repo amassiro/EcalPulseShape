@@ -152,7 +152,7 @@ namespace cond {
     int execute() {
 
       
-      float Amplitude_ADC = 100.;
+      float Amplitude_ADC = 1000.;
       
 //       std::cout << " :: execute " << std::endl;
       
