@@ -244,7 +244,11 @@ namespace cond {
       //             noisecov = 2.0 * 2.0 * noisecors[0];
       
       
-      
+//       
+//       static const int TEMPLATESAMPLES = 12;
+//       
+
+
       
       //---- now get the pulse shape and amplitude tags
       
@@ -308,9 +312,14 @@ namespace cond {
           int iphi;
           int iz;
           
-          std::vector <float> samplesReco;
+          std::vector <float> samplesReco; //---- the reconstructed energy per BX
+          std::vector <float> samplesSim; //---- the simulated pulse
+          std::vector <float> pulseShapeTemplate; //---- the pulse shape template
+          
           
           outputTree->Branch("samplesReco",   &samplesReco);
+          outputTree->Branch("samplesSim",    &samplesSim);
+          outputTree->Branch("pulseShapeTemplate",    &pulseShapeTemplate);
           outputTree->Branch("bias",  &bias);
           outputTree->Branch("EbxM1", &EbxM1);
           outputTree->Branch("ieta", &ieta);
@@ -319,8 +328,12 @@ namespace cond {
           
           for (unsigned int ibx=0; ibx<10; ++ibx) {
             samplesReco.push_back(0.);
+            samplesSim.push_back(0.);   
           }
-          
+
+          for (unsigned int ibx=0; ibx<20; ++ibx) {
+            pulseShapeTemplate.push_back(0.);
+          }
           
           
           
@@ -353,6 +366,10 @@ namespace cond {
             
             for (unsigned int ibx=0; ibx<10; ++ibx) {
               samplesReco.at(ibx) = 0.;
+              samplesSim.at(ibx) = 0.;
+            }
+            for (unsigned int ibx=0; ibx<20; ++ibx) {
+              pulseShapeTemplate.at(ibx) = 0.;
             }
             
             
@@ -415,6 +432,7 @@ namespace cond {
             //---- pulse shape to be used as reference ...      
             for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
               fullpulse(iSample+7) = it_pulseShape_fit->val(iSample);
+              pulseShapeTemplate.at(iSample+7) = it_pulseShape_fit->val(iSample);
             }
             
             
@@ -439,6 +457,7 @@ namespace cond {
               if (iSample<7) {
                 //---- 100 = 100 ADC counts [random number]
                 amplitudes[iSample+3] = Amplitude_ADC * it_pulseShape_simulation->val(iSample);
+                samplesSim.at(iSample+3) = it_pulseShape_simulation->val(iSample);
               }
             }
             
@@ -537,7 +556,7 @@ namespace cond {
         
       
       
-      std::string name_output_file = "out_" + _tag_production + "_" + _tag_fit + std::to_string((*first_iov).since) + "_" + std::to_string((*last_iov).since) + ".root";
+      std::string name_output_file = "out_" + _tag_production + "_" + _tag_fit  + "_" +  std::to_string((*first_iov).since) + "_" + std::to_string((*last_iov).since) + ".root";
       
       std::cout << " name_output_file = " << name_output_file << std::endl;
       
@@ -549,9 +568,14 @@ namespace cond {
       int iphi;
       int iz;
       
-      std::vector <float> samplesReco;
+      std::vector <float> samplesReco; //---- the reconstructed energy per BX
+      std::vector <float> samplesSim; //---- the simulated pulse
+      std::vector <float> pulseShapeTemplate; //---- the pulse shape template
+      
       
       outputTree->Branch("samplesReco",   &samplesReco);
+      outputTree->Branch("samplesSim",    &samplesSim);
+      outputTree->Branch("pulseShapeTemplate",    &pulseShapeTemplate);
       outputTree->Branch("bias",  &bias);
       outputTree->Branch("EbxM1", &EbxM1);
       outputTree->Branch("ieta", &ieta);
@@ -560,8 +584,12 @@ namespace cond {
       
       for (unsigned int ibx=0; ibx<10; ++ibx) {
         samplesReco.push_back(0.);
+        samplesSim.push_back(0.);   
       }
       
+      for (unsigned int ibx=0; ibx<20; ++ibx) {
+        pulseShapeTemplate.push_back(0.);
+      }     
       
       
        
@@ -596,6 +624,10 @@ namespace cond {
         
         for (unsigned int ibx=0; ibx<10; ++ibx) {
           samplesReco.at(ibx) = 0.;
+          samplesSim.at(ibx) = 0.;
+        }
+        for (unsigned int ibx=0; ibx<20; ++ibx) {
+          pulseShapeTemplate.at(ibx) = 0.;
         }
         
         
@@ -662,6 +694,7 @@ namespace cond {
         //---- pulse shape to be used as reference ...      
         for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
           fullpulse(iSample+7) = it_pulseShape_fit->val(iSample);
+          pulseShapeTemplate.at(iSample+7) = it_pulseShape_fit->val(iSample);
         }
         
         
@@ -690,6 +723,7 @@ namespace cond {
             //---- 100 = 100 ADC counts [random number]
             //               production_samples.push_back( 100* it_pulseShape_simulation->val(iSample) );
             amplitudes[iSample+3] = Amplitude_ADC * it_pulseShape_simulation->val(iSample);
+            samplesSim.at(iSample+3) = it_pulseShape_simulation->val(iSample);
           }
         }
         

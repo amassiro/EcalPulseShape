@@ -35,6 +35,13 @@ Steps
     
     
     
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3_307013_306121.root\",20,40,1\)
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3_307013_306121.root\",63,50,-1\)
+    
+    
+    
+    
+    
     
 Legacy 2016:
 
