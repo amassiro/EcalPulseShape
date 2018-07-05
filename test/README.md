@@ -8,13 +8,13 @@ Steps
 
 
 
-              simulate    fit
-    download     1         2
+                                            simulate    fit
+    download  EcalPulseShapes_Legacy2016_v2    1         2
     
-    download     2         3
+    download  EcalPulseShapes_Legacy2016_v2    2         3
     
 
-    download     5        6
+    download  EcalPulseShapes_Legacy2016_v2    5        6
 
     
     r99t test/draw.cxx
@@ -38,6 +38,16 @@ Steps
     r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3_307013_306121.root\",20,40,1\)
     r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3_307013_306121.root\",63,50,-1\)
     
+    
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_Legacy2016_v2_EcalPulseShapes_Legacy2016_v2_293999_283863.root\",63,50,-1\)
+    
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3_301472_301141.root\",41,91,-1,1\)
+    r99t test/draw.cxx\(\"out_EcalPulseShapes_October2017_rereco_v3_EcalPulseShapes_October2017_rereco_v3_301472_301141.root\"\)
+
+    
+    
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_Legacy2016_v2_EcalPulseShapes_Legacy2016_v2_300202_297681.root\",41,91,-1,0\)
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_Legacy2016_v2_EcalPulseShapes_Legacy2016_v2_300202_297681.root\",-15,107,0,1\)
     
     
     
