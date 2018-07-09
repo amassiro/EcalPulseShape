@@ -174,7 +174,7 @@ void drawPulse(std::string name_input_file = "out.root", int ix_todraw = 10, int
         grPulseReco[iBx]->SetLineColor(color[iBx]);
         grPulseReco[iBx]->SetMarkerSize(1);
         grPulseReco[iBx]->SetMarkerStyle(21+iBx);
-        TString nameHistoTitle = Form ("BX %d", iBx);
+        TString nameHistoTitle = Form ("BX %d", iBx-5);
         leg->AddEntry(grPulseReco[iBx],nameHistoTitle.Data(),"p");
         grPulseReco[iBx]->Draw("PL");
       }

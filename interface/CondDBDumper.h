@@ -276,13 +276,14 @@ namespace cond {
           
           _simulate = iter_iov+1;
           _fit = iter_iov+2;
+
+          //---- simulate with new, fit with old
           
           std::cout << " Running: [" << iter_iov << "] = " << _simulate << " -> " << _fit << std::endl;
           
           
           std::cout << " simulate = " << _simulate << std::endl;
           std::cout << " fit      = " << _fit << std::endl;
-          
           
           first_iov = iovs_production.begin();
           last_iov  = iovs_production.begin();
