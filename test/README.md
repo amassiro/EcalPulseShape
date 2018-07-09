@@ -55,6 +55,11 @@ Steps
     
     r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_Legacy2016_v2_EcalPulseShapes_Legacy2016_v2_293999_293999.root\",-15,107,0,1\)
     
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_Legacy2016_v2_EcalPulseShapes_Legacy2016_v2_275757_274958.root\",-59,112,0,1\)
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_Legacy2016_v2_EcalPulseShapes_Legacy2016_v2_275757_274958.root\",-43,243,0,1\)
+
+    r99t test/drawPulse.cxx\(\"out_EcalPulseShapes_Legacy2016_v2_EcalPulseShapes_Legacy2016_v2_275757_274958.root\",50,18,1,1\)
+    
     
     
 Legacy 2016:
@@ -114,7 +119,7 @@ Legacy 2016:
 
 
     
-    
+    cp  index.php   Legacy2016_v2_283171_282408/
     cp  index.php   Legacy2016_v2_282408_281010/  
     cp  index.php   Legacy2016_v2_281010_279717/  
     cp  index.php   Legacy2016_v2_279717_279474/  
