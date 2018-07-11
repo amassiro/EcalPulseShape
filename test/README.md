@@ -167,5 +167,18 @@ Legacy 2016:
     
     
     
+
+Simulation time shift:
+
+    Prepare tags
     
+    Inputs: https://adarold.web.cern.ch/adarold/everycrystal_par.txt
+    2017 time scan (1 ns time scan)
+    
+    
+    
+    
+    
+    
+
     
