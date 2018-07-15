@@ -30,15 +30,23 @@ int main(int argc, char** argv) {
  
  //                                                                                                          simulate    fit
  
+ int toremove = 0;
+ std::string dbname = "-";
+ if (argc == 4) {
+   //---- db added by hand
+   dbname = argv[3];
+   toremove +=1;
+ }
+ 
  std::cout << " name_tag = " << name_tag << std::endl;
  std::cout << " max_iov  = " << max_iov << std::endl;
  
- int argc2 = argc-2;
+ int argc2 = argc-2-toremove;
  char** argv2 = argv; 
  
  
  
- cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit(name_tag, max_iov);  
+ cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit(name_tag, max_iov, dbname);  
  
  //---- generate according to PulseShapeGeneration and fit using PulseShapeFit
  //---- generate

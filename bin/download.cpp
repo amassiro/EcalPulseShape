@@ -39,6 +39,15 @@ int main(int argc, char** argv) {
  int simulate     (atoi(argv[2])) ;
  int fit          (atoi(argv[3])) ;
  
+ int toremove = 0;
+ std::string dbname = "-";
+ if (argc == 5) {
+   //---- db added by hand
+   dbname = argv[4];
+   toremove +=1;
+   std::cout << " dbname = " << dbname << std::endl;
+ }
+ 
  
  
  //                                                                                                          simulate    fit
@@ -46,11 +55,14 @@ int main(int argc, char** argv) {
 //  cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit("EcalPulseShapes_hlt", "EcalPulseShapes_hlt",  simulate      ,    fit);
 
 //  cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit("EcalPulseShapes_October2017_rereco_v3", "EcalPulseShapes_October2017_rereco_v3",  simulate      ,    fit);
- cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit(name_tag.c_str(), name_tag.c_str(),  simulate      ,    fit);
+ cond::CondDBDumper<EcalPulseShapes> PulseShapeGenerationAndFit(name_tag.c_str(), name_tag.c_str(),  simulate      ,    fit,      dbname);
  
  
- int argc2 = argc-3;
+ int argc2 = argc-3-toremove;
  char** argv2 = argv; 
+ std::cout << " *argv2 = " << *argv2 << std::endl;
+ std::cout << " argc2  = " << argc2 << std::endl;
+ 
  PulseShapeGenerationAndFit.run(argc2, argv2);
  
  std::cout << " done " << std::endl;

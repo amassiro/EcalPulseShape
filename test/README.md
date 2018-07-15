@@ -177,6 +177,12 @@ Simulation time shift:
     
     
     
+test:
+
+    cmsRun test/Ecal_PulseShapes_argv_cfg.py   template_histograms_ECAL_Run2015C_lowPU.txt
+    
+    download  EcalPulseShapes_data     1        1       file:ecaltemplates_popcon_runs.db
+       
     
     
     

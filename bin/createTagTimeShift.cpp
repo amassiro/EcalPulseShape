@@ -19,9 +19,6 @@
 #include "TF1.h"
 
 
-//---- conddb
-// #include "ECALValidation/EcalPulseShape/interface/CondDBDumper.h"
-
 double alphabeta(double* x, double*p){
   
   double fitval;
@@ -53,10 +50,15 @@ int main(int argc, char** argv) {
  function_alphabeta->SetParName(3, "beta");
  
  
+ int NMAX = 10;
+ float dt = 100.; //---- ps
  
  //---- loop over time shifts
- //---- save a new tag for each time shift
+ for (int itime = 0; itime < NMAX ; itime++) {
+   //---- save a new tag for each time shift
+   
  
+ }
  
  
  

@@ -70,7 +70,10 @@ namespace cond {
     
   public:
     
-    CondDBDumper(std::string tag_production, std::string tag_fit, int simulate, int fit)  : Utilities("") {
+    CondDBDumper(std::string tag_production, std::string tag_fit, int simulate, int fit, std::string db)  : Utilities("") {
+      
+      _db = db;
+      
       _tag_production = tag_production;
       _tag_fit        = tag_fit;
       
@@ -106,7 +109,10 @@ namespace cond {
     }
     
     
-    CondDBDumper(std::string tag_all, int max_iov)  : Utilities("") {
+    CondDBDumper(std::string tag_all, int max_iov, std::string db)  : Utilities("") {
+
+      _db = db;
+
       _tag_production = tag_all;
       _tag_fit        = tag_all;
       
@@ -157,7 +163,13 @@ namespace cond {
 //       std::cout << " :: execute " << std::endl;
       
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
-      std::string db = "";
+//       std::string db = _db;
+//       if (hasOptionValue("db")) {
+      if (_db != "-" ) {  
+        connect = _db; //getOptionValue<std::string>("db");
+      }
+      std::cout << " connect = " << connect << std::endl;
+      
       
 //       std::cout << " here 1 " << std::endl;
       cond::persistency::ConnectionPool* connPool = new cond::persistency::ConnectionPool ;
@@ -870,6 +882,7 @@ namespace cond {
     
     
   private:
+    std::string _db;
     std::string _tag_production;
     std::string _tag_fit;
     std::vector<DetId> _ids;
