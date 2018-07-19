@@ -226,8 +226,16 @@ namespace cond {
           int vidx = std::abs(j-i);
           noisecovEB(i,j) = 2.0 * 2.0 * noisecovariances->EBG12SamplesCorrelation[vidx];
           //           noisecorEBg12(i,j) = noisecovariances->EBG12SamplesCorrelation[vidx];
+          
+          std::cout << "   " << noisecovEB(i,j) ;
+          
         }
+        std::cout << std::endl;
       }
+      
+      std::cout << " ~~~~~~~~ " << std::endl;
+      std::cout << " ~~~~~~~~ " << std::endl;
+      
       
       SampleMatrix noisecovEE;
       noisecovEE = SampleMatrix::Zero();
@@ -430,8 +438,10 @@ namespace cond {
             for(int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES;iSample++) {
               for(int jSample=0; jSample<EcalPulseShape::TEMPLATESAMPLES;jSample++) {
                 fullpulsecov(iSample+7,jSample+7) = aPulseCov->covval[iSample][jSample];
+//                 std::cout << "[" << iSample+7 << " , " << jSample+7 << "] = " << fullpulsecov(iSample+7,jSample+7) << std::endl;
               }
             }
+//             std::cout << " ------ " << std::endl;
             
             
             EcalPulseShapes::const_iterator it_pulseShape_fit = pa_fit->find(id);
@@ -692,8 +702,12 @@ namespace cond {
           for(int jSample=0; jSample<EcalPulseShape::TEMPLATESAMPLES;jSample++) {
             //                 std::cout << " iSample, jSample =  " << iSample << " , " << jSample << std::endl;
             fullpulsecov(iSample+7,jSample+7) = aPulseCov->covval[iSample][jSample];
+//             std::cout << "[" << iSample+7 << " , " << jSample+7 << "] = " << fullpulsecov(iSample+7,jSample+7) << std::endl;
+//             std::cout << "   " << fullpulsecov(iSample+7,jSample+7);
           }
+//           std::cout << std::endl;
         }
+//         std::cout << " ------ " << std::endl;
         
         
         EcalPulseShapes::const_iterator it_pulseShape_fit = pa_fit->find(id);

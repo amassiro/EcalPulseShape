@@ -59,3 +59,24 @@
 </bin>
 
 
+<bin name="scan_all" file="TimeShiftAnalysis.cpp">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/CaloTopology"/>
+  <use name="Geometry/EcalAlgo"/>
+  <use name="DataFormats/EgammaCandidates"/>
+  <use name="RecoEgamma/EgammaIsolationAlgos"/>
+  <use name="DataFormats/EcalDetId"/>
+  <use name="RecoEcal/EgammaCoreTools"/>
+  <use name="CondFormats/EcalObjects"/>
+  <use name="CondCore/Utilities"/>
+  <flags LCGDICT_ARGS="--deep"/>
+</bin>
+
+
+
+
