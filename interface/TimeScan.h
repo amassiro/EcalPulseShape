@@ -98,14 +98,13 @@ namespace cond {
       //
       
       //Open txt file with mean fit parameters for eta rings for barrel and endcaps
-      int rawid;
+      unsigned int rawid;
       float A;
       float t_0;
       float alpha;
       float beta;
       
       std::vector<float> v_parameters;
-      std::map<int, std::vector<float> > map_parameters;
       
       std::ifstream txt_input;
       txt_input.open(_input_alpha_beta_file_name);
@@ -118,7 +117,7 @@ namespace cond {
         v_parameters.push_back(alpha);
         v_parameters.push_back(beta);
         
-        map_parameters[rawid] = v_parameters;
+        _map_parameters[rawid] = v_parameters;
         
         if ( ! txt_input.good() ) break;
       }
@@ -321,15 +320,17 @@ namespace cond {
           FullSampleMatrix fullpulsecov(FullSampleMatrix::Zero());
           
           
+          unsigned int hashedIndex;
+          
           const EcalPulseCovariances::Item * aPulseCov = nullptr;
           //---- EB
           if (_c.iz_ == 0 ) {
-            unsigned int hashedIndex = EBDetId(_ids[i]).hashedIndex();
+            hashedIndex = EBDetId(_ids[i]).hashedIndex();
             aPulseCov  = &(pulsecovariances)->barrel(hashedIndex);  
           }
           //---- EE
           else {
-            unsigned int hashedIndex = EEDetId(_ids[i]).hashedIndex();
+            hashedIndex = EEDetId(_ids[i]).hashedIndex();
             aPulseCov  = &(pulsecovariances)->endcap(hashedIndex);
           }
           
@@ -348,88 +349,104 @@ namespace cond {
             }
           }
           
+//           std::cout << " hashedIndex = " << hashedIndex << "; _ids[" << i << "].rawId() = " << _ids[i].rawId() << std::endl;
           
-          
-          //---- pulse shape to be used as reference ...      
-          //             for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-          //               fullpulse(iSample+7) = it_pulseShape_fit->val(iSample);
-          //               pulseShapeTemplate.at(iSample+7) = it_pulseShape_fit->val(iSample);
-          //             }
-          
-          
-          //
-          //---- the input pulse to be fitted
-          //
-          //           std::vector < float > production_samples;
-          //           production_samples.push_back(0, 0, 0);     
-          
-          amplitudes[0] = 0.;
-          amplitudes[1] = 0.;
-          amplitudes[2] = 0.;
-          
-          for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
-            //---- only the first 7 samples, the rest is extrapolation
-            if (iSample<7) {
-              //---- 100 = 100 ADC counts [random number]
-              //                 amplitudes[iSample+3] = Amplitude_ADC * it_pulseShape_simulation->val(iSample);
-              //                 samplesSim.at(iSample+3) = it_pulseShape_simulation->val(iSample);
+          if (_map_parameters.find( _ids[i].rawId() ) != _map_parameters.end()) {
+            
+            //---- pulse shape to be used as reference ...      
+            function_alphabeta->SetParameter(0, _map_parameters[_ids[i].rawId()].at(0));  // A 
+            function_alphabeta->SetParameter(1, _map_parameters[_ids[i].rawId()].at(1));  // t_0 
+            function_alphabeta->SetParameter(2, _map_parameters[_ids[i].rawId()].at(2));  // alpha 
+            function_alphabeta->SetParameter(3, _map_parameters[_ids[i].rawId()].at(3));  // beta
+            
+            
+            for (int iSample=0; iSample<EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+              fullpulse(iSample+7) = function_alphabeta->Eval(iSample * 25 + 25*3);
+              pulseShapeTemplate.at(iSample+7) = function_alphabeta->Eval(iSample * 25 + 25*3);
             }
-          }
-          
-          //---- now fit!
-          bool status = false;
-          
-          //---- EB
-          if (_c.iz_ == 0 ) {
-            status = _pulsefunc.DoFit(amplitudes,noisecovEB,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
-          }
-          else {
-            status = _pulsefunc.DoFit(amplitudes,noisecovEE,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
-          }
-          float chisq = _pulsefunc.ChiSq();
-          
-          if (!status) {
-            std::cout << " warning: bad fit " << std::endl;
-          }
-          
-          unsigned int ipulseintime = 0;
-          for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-            if (_pulsefunc.BXs().coeff(ipulse) == 0) {
-              ipulseintime = ipulse;
-              break;
+            
+            
+            //
+            //---- the input pulse to be fitted
+            //
+            //           std::vector < float > production_samples;
+            //           production_samples.push_back(0, 0, 0);     
+            
+            amplitudes[0] = 0.;
+            amplitudes[1] = 0.;
+            amplitudes[2] = 0.;
+            
+            //---- shift in time
+            function_alphabeta->SetParameter(1, _map_parameters[_ids[i].rawId()].at(1) + delta_time_absolute);  // t_0 
+            
+            for (int iSample = 0; iSample < EcalPulseShape::TEMPLATESAMPLES; iSample++) {
+              //---- only the first 7 samples, the rest is extrapolation
+              if (iSample<7) {
+                //---- 100 = 100 ADC counts [random number]
+                amplitudes[iSample+3] = Amplitude_ADC * function_alphabeta->Eval(iSample * 25 + 25*3);
+                samplesSim.at(iSample+3) = function_alphabeta->Eval(iSample * 25 + 25*3);
+              }
             }
-          }
-          
-          unsigned int ipulseM1 = 0;
-          for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-            if (_pulsefunc.BXs().coeff(ipulse) == -1) {
-              ipulseM1 = ipulse;
-              break;
-            }
-          }
-          
-          _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / Amplitude_ADC;
-          
-          bias = _bias [i];
-          
-          EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / Amplitude_ADC;
-          
-          int NSAMPLES = 10;
-          for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows() ; ++ipulse) {
-            if (status) { 
-              if ((int(_pulsefunc.BXs().coeff(ipulse))) + 5 < NSAMPLES) samplesReco[ (int(_pulsefunc.BXs().coeff(ipulse))) + 5] = _pulsefunc.X()[ ipulse ];
+            
+            //---- now fit!
+            bool status = false;
+            
+            //---- EB
+            if (_c.iz_ == 0 ) {
+              status = _pulsefunc.DoFit(amplitudes,noisecovEB,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
             }
             else {
-              samplesReco[ipulse] = -1;
+              status = _pulsefunc.DoFit(amplitudes,noisecovEE,activeBX,fullpulse,fullpulsecov,gainsPedestal,badSamples);
             }
+            float chisq = _pulsefunc.ChiSq();
+            
+            if (!status) {
+              std::cout << " warning: bad fit " << std::endl;
+            }
+            
+            unsigned int ipulseintime = 0;
+            for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+              if (_pulsefunc.BXs().coeff(ipulse) == 0) {
+                ipulseintime = ipulse;
+                break;
+              }
+            }
+            
+            unsigned int ipulseM1 = 0;
+            for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+              if (_pulsefunc.BXs().coeff(ipulse) == -1) {
+                ipulseM1 = ipulse;
+                break;
+              }
+            }
+            
+            _bias [i] = ( status ? _pulsefunc.X()[ipulseintime] : 0.) / Amplitude_ADC;
+            
+            bias = _bias [i];
+            
+            EbxM1 =  ( status ? _pulsefunc.X()[ipulseM1] : -1) / Amplitude_ADC;
+            
+            int NSAMPLES = 10;
+            for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows() ; ++ipulse) {
+              if (status) { 
+                if ((int(_pulsefunc.BXs().coeff(ipulse))) + 5 < NSAMPLES) samplesReco[ (int(_pulsefunc.BXs().coeff(ipulse))) + 5] = _pulsefunc.X()[ ipulse ];
+              }
+              else {
+                samplesReco[ipulse] = -1;
+              }
+            }
+            
+            
+            
+            if (! (i%10000)) {
+              std::cout << " i = " << i;
+              std::cout << "     -> " << _pulsefunc.X()[ipulseintime] << std::endl;
+            }
+            
           }
-          
-          
-          
-          if (! (i%10000)) {
-            std::cout << " i = " << i;
-            std::cout << "     -> " << _pulsefunc.X()[ipulseintime] << std::endl;
-          }
+//           else {
+//             std::cout << " Crystal missing: " << _c.ix_ << " , " << _c.iy_ << " , " << _c.iz_ << " : " << _ids[i].rawId() << " MAX = " << _map_parameters.size() << std::endl; 
+//           }
           
           ieta = _c.ix_;
           iphi = _c.iy_;
@@ -506,6 +523,8 @@ namespace cond {
     
     std::vector<DetId> _ids;
     std::vector<float> _bias;
+    
+    std::map<unsigned int, std::vector<float> > _map_parameters;
     
     PulseChiSqSNNLS _pulsefunc;
     

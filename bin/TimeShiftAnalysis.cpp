@@ -33,7 +33,10 @@ int main(int argc, char** argv) {
  
  
 //  TimeScan(std::string input_alpha_beta_file_name, int min_dt, int max_dt, float delta_time)
- cond::TimeScan<EcalPulseShapes> TimeScanAnalyser(input_alpha_beta_file_name, -2, 2, 1);  
+ cond::TimeScan<EcalPulseShapes> TimeScanAnalyser(input_alpha_beta_file_name, -100, 100, 0.01);  
+ 
+ TimeScanAnalyser.run(argc, argv);
+ 
  
 }
 
