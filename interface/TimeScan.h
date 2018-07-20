@@ -112,6 +112,9 @@ namespace cond {
       while ( kTRUE ) {
         txt_input >> rawid >> A >> t_0 >> alpha >> beta;
         v_parameters.clear();
+        
+        A = 1.; //--- why shouldn't it be 1 ???
+        
         v_parameters.push_back(A);
         v_parameters.push_back(t_0);
         v_parameters.push_back(alpha);

@@ -186,10 +186,31 @@ test:
     
 Study time shift:
 
-    TimeShiftAnalysis
+    TimeShiftAnalysis     data/everycrystal_par.txt     -10      10      100
+    TimeShiftAnalysis     data/everycrystal_par.txt     -10      10      1000
+    
+    r99t test/draw.cxx\(\"out_time_scan_-10.000000.root\"\)     
+    r99t test/draw.cxx\(\"out_time_scan_-1.000000.root\"\) 
+    
+    r99t test/drawPulse.cxx\(\"out_time_scan_-10.000000.root\",50,18,0,1\)
+    
+    
     
     r99t test/draw.cxx\(\"out_time_scan_-1.000000.root\"\) 
+    r99t test/draw.cxx\(\"out_time_scan_0.630000.root\"\) 
+    r99t test/draw.cxx\(\"out_time_scan_0.000000.root\"\) 
 
+    r99t test/drawPulse.cxx\(\"out_time_scan_0.630000.root\",50,18,1,1\)
+    r99t test/drawPulse.cxx\(\"out_time_scan_0.000000.root\",50,18,1,1\)
+    
+    r99t test/drawPulse.cxx\(\"out_time_scan_0.630000.root\",50,18,0,1\)
+    r99t test/drawPulse.cxx\(\"out_time_scan_0.990000.root\",50,18,0,1\)
+    
+    
+    
+    
+    
+    
     
     
     
