@@ -59,7 +59,7 @@
 </bin>
 
 
-<bin name="scan_all" file="TimeShiftAnalysis.cpp">
+<bin name="TimeShiftAnalysis" file="TimeShiftAnalysis.cpp">
   <use name="FWCore/Framework"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
