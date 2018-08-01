@@ -163,12 +163,14 @@ namespace cond {
 //       std::cout << " :: execute " << std::endl;
       
       std::string connect = "frontier://FrontierProd/CMS_CONDITIONS";
+      std::string connect_pulse_shape = "frontier://FrontierProd/CMS_CONDITIONS";
 //       std::string db = _db;
 //       if (hasOptionValue("db")) {
       if (_db != "-" ) {  
-        connect = _db; //getOptionValue<std::string>("db");
+        connect_pulse_shape = _db; //getOptionValue<std::string>("db");
       }
       std::cout << " connect = " << connect << std::endl;
+      std::cout << " connect_pulse_shape = " << connect_pulse_shape << std::endl;
       
       
 //       std::cout << " here 1 " << std::endl;
@@ -187,6 +189,8 @@ namespace cond {
 //       std::cout << " here 4 " << std::endl;
       
       cond::persistency::Session session = connPool->createSession(connect);
+
+      cond::persistency::Session session_pulse_shape = connPool->createSession(connect_pulse_shape);
       
 //       std::cout << " here 5 " << std::endl;
       
@@ -197,6 +201,8 @@ namespace cond {
       
       
       session.transaction().start( true );
+      session_pulse_shape.transaction().start( true );
+      
       
       //---- get pulse covariances 
       cond::persistency::IOVProxy iovs_EcalPulseCovariances = session.readIov("EcalPulseCovariances_mc", true);
@@ -272,7 +278,7 @@ namespace cond {
       
       //---- now get the pulse shape and amplitude tags
       
-      cond::persistency::IOVProxy iovs_production = session.readIov(_tag_production, true);
+      cond::persistency::IOVProxy iovs_production = session_pulse_shape.readIov(_tag_production, true);
       std::string obj_type = iovs_production.payloadObjectType();
       
       

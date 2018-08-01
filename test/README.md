@@ -79,6 +79,12 @@ Legacy 2016:
     scan_all EcalPulseShapes_October2017_rereco_v3  15
     
     
+
+    scan_all   EcalPulseShapes_data    1    sqlite_file:/afs/cern.ch/work/e/emanuele/public/ecal/pulseshapes_db/ecaltemplates_popcon_Ultimate2016_calib.db 
+    
+    
+
+    
     
     r99t test/draw.cxx\(\"out_EcalPulseShapes_hlt_EcalPulseShapes_hlt318745_317506.root\"\)
     

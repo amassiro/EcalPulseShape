@@ -40,7 +40,7 @@
 </bin>
 
 
-<bin name="scan_all" file="createTagTimeShift.cpp">
+<bin name="createTagTimeShift" file="createTagTimeShift.cpp">
   <use name="FWCore/Framework"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ParameterSet"/>
