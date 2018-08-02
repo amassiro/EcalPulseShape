@@ -79,10 +79,34 @@ Legacy 2016:
     scan_all EcalPulseShapes_October2017_rereco_v3  15
     
     
+    New tag
+    ----
 
     scan_all   EcalPulseShapes_data    1    sqlite_file:/afs/cern.ch/work/e/emanuele/public/ecal/pulseshapes_db/ecaltemplates_popcon_Ultimate2016_calib.db 
+    scan_all   EcalPulseShapes_data   23    sqlite_file:/afs/cern.ch/work/e/emanuele/public/ecal/pulseshapes_db/ecaltemplates_popcon_Ultimate2016_calib.db 
     
     
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_283863_283171.root\"\);     mkdir Legacy2016_v3_283863_283171/;   cp *.png  Legacy2016_v3_283863_283171/;     cp index.php  Legacy2016_v3_283863_283171/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_283171_282730.root\"\);     mkdir Legacy2016_v3_283171_282730/;   cp *.png  Legacy2016_v3_283171_282730/;     cp index.php  Legacy2016_v3_283171_282730/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_282730_282408.root\"\);     mkdir Legacy2016_v3_282730_282408/;   cp *.png  Legacy2016_v3_282730_282408/;     cp index.php  Legacy2016_v3_282730_282408/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_282408_281010.root\"\);     mkdir Legacy2016_v3_282408_281010/;   cp *.png  Legacy2016_v3_282408_281010/;     cp index.php  Legacy2016_v3_282408_281010/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_281010_280327.root\"\);     mkdir Legacy2016_v3_281010_280327/;   cp *.png  Legacy2016_v3_281010_280327/;     cp index.php  Legacy2016_v3_281010_280327/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_280327_279993.root\"\);     mkdir Legacy2016_v3_280327_279993/;   cp *.png  Legacy2016_v3_280327_279993/;     cp index.php  Legacy2016_v3_280327_279993/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_279993_279717.root\"\);     mkdir Legacy2016_v3_279993_279717/;   cp *.png  Legacy2016_v3_279993_279717/;     cp index.php  Legacy2016_v3_279993_279717/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_279717_279715.root\"\);     mkdir Legacy2016_v3_279717_279715/;   cp *.png  Legacy2016_v3_279717_279715/;     cp index.php  Legacy2016_v3_279717_279715/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_279715_279474.root\"\);     mkdir Legacy2016_v3_279715_279474/;   cp *.png  Legacy2016_v3_279715_279474/;     cp index.php  Legacy2016_v3_279715_279474/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_279474_278977.root\"\);     mkdir Legacy2016_v3_279474_278977/;   cp *.png  Legacy2016_v3_279474_278977/;     cp index.php  Legacy2016_v3_279474_278977/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_278977_278346.root\"\);     mkdir Legacy2016_v3_278977_278346/;   cp *.png  Legacy2016_v3_278977_278346/;     cp index.php  Legacy2016_v3_278977_278346/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_278346_277932.root\"\);     mkdir Legacy2016_v3_278346_277932/;   cp *.png  Legacy2016_v3_278346_277932/;     cp index.php  Legacy2016_v3_278346_277932/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_277932_276775.root\"\);     mkdir Legacy2016_v3_277932_276775/;   cp *.png  Legacy2016_v3_277932_276775/;     cp index.php  Legacy2016_v3_277932_276775/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_276775_276525.root\"\);     mkdir Legacy2016_v3_276775_276525/;   cp *.png  Legacy2016_v3_276775_276525/;     cp index.php  Legacy2016_v3_276775_276525/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_276525_276282.root\"\);     mkdir Legacy2016_v3_276525_276282/;   cp *.png  Legacy2016_v3_276525_276282/;     cp index.php  Legacy2016_v3_276525_276282/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_276282_275886.root\"\);     mkdir Legacy2016_v3_276282_275886/;   cp *.png  Legacy2016_v3_276282_275886/;     cp index.php  Legacy2016_v3_276282_275886/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_275886_275656.root\"\);     mkdir Legacy2016_v3_275886_275656/;   cp *.png  Legacy2016_v3_275886_275656/;     cp index.php  Legacy2016_v3_275886_275656/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_275656_275282.root\"\);     mkdir Legacy2016_v3_275656_275282/;   cp *.png  Legacy2016_v3_275656_275282/;     cp index.php  Legacy2016_v3_275656_275282/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_275282_274958.root\"\);     mkdir Legacy2016_v3_275282_274958/;   cp *.png  Legacy2016_v3_275282_274958/;     cp index.php  Legacy2016_v3_275282_274958/  
+    r99t -q   test/draw.cxx\(\"out_EcalPulseShapes_data_EcalPulseShapes_data_274958_274080.root\"\);     mkdir Legacy2016_v3_274958_274080/;   cp *.png  Legacy2016_v3_274958_274080/;     cp index.php  Legacy2016_v3_274958_274080/  
+
 
     
     
