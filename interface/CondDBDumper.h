@@ -378,10 +378,10 @@ namespace cond {
           for (auto iov : iovs_production) {
             cnt_iov++;
             if (cnt_iov == (max_iov - _simulate)) {  //---- pulse shape used as simulation
-              pa_simulation = session.fetchPayload<C>(iov.payloadId);
+              pa_simulation = session_pulse_shape.fetchPayload<C>(iov.payloadId);
             }    
             if (cnt_iov == (max_iov-_fit)) {  //---- pulse shape used as fit function
-              pa_fit = session.fetchPayload<C>(iov.payloadId);
+              pa_fit = session_pulse_shape.fetchPayload<C>(iov.payloadId);
             }    
           }
           
@@ -637,11 +637,11 @@ namespace cond {
         cnt_iov++;
         if (cnt_iov == (max_iov - _simulate)) {  //---- pulse shape used as simulation
           //         if (cnt_iov == (max_iov-1)) {  //---- pulse shape used as simulation
-          pa_simulation = session.fetchPayload<C>(iov.payloadId);
+          pa_simulation = session_pulse_shape.fetchPayload<C>(iov.payloadId);
         }    
         if (cnt_iov == (max_iov-_fit)) {  //---- pulse shape used as fit function
           //         if (cnt_iov == (max_iov-2)) {  //---- pulse shape used as fit function
-          pa_fit = session.fetchPayload<C>(iov.payloadId);
+          pa_fit = session_pulse_shape.fetchPayload<C>(iov.payloadId);
         }    
       }
       
